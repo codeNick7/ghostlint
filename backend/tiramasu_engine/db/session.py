@@ -9,10 +9,16 @@ from tiramasu_engine.db.models import Base
 def _db_path() -> Path:
     override = os.environ.get("TIRAMASU_DB_PATH")
     if override:
-        return Path(override)
-    data_dir = Path.home() / ".tiramasu"
-    data_dir.mkdir(exist_ok=True)
-    return data_dir / "tiramasu.db"
+        p = Path(override).resolve()
+    else:
+        data_dir = Path.home() / ".tiramasu"
+        data_dir.mkdir(mode=0o700, exist_ok=True)
+        os.chmod(data_dir, 0o700)
+        p = data_dir / "tiramasu.db"
+    # Restrict permissions on the db file after first creation
+    if not p.exists():
+        p.touch(mode=0o600)
+    return p
 
 
 def _make_engine():
