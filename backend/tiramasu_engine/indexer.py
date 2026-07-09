@@ -12,9 +12,22 @@ LANGUAGE_MAP: dict[str, str] = {
 }
 
 EXCLUDE_DIRS: set[str] = {
-    ".git", "node_modules", "__pycache__", ".venv", "venv",
-    "dist", "build", ".next", "vendor", ".mypy_cache",
-    ".pytest_cache", "coverage", ".tox", "eggs", ".eggs",
+    # VCS
+    ".git", ".svn", ".hg",
+    # Python
+    "__pycache__", ".venv", "venv", ".tox", "eggs", ".eggs",
+    ".mypy_cache", ".pytest_cache", ".ruff_cache",
+    # JS/TS
+    "node_modules",
+    # Build outputs — compiled/bundled artifacts, never source
+    "dist", "build", "out", ".next", ".nuxt", ".svelte-kit",
+    "storybook-static", ".expo", ".turbo",
+    # Generated files
+    "generated", "__generated__", ".generated",
+    # Mobile compiled assets — bundler output (webpack chunks, Metro bundles)
+    "assets",          # android/app/src/main/assets, iOS assets bundle
+    # Misc
+    "vendor", "coverage", ".cache",
 }
 
 MAX_FILE_BYTES = 512 * 1024  # skip files larger than 512 KB

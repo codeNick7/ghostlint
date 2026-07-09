@@ -241,6 +241,11 @@ _DYNAMIC_PATH_SEGMENTS = {
     "scripts", "fixtures", "seeds",
 }
 
+# Bundler output filenames contain a content hash — 8+ hex chars in the stem.
+# e.g. "5333.e1ed8bd7bd6b4bbb.js", "layout-cde9c4d7a42012df.js"
+# These are webpack/Metro/Vite chunks, not source modules.
+_CONTENT_HASH_RE = re.compile(r"[0-9a-f]{8,}", re.IGNORECASE)
+
 
 def _build_referenced_module_keys(context: AnalysisContext) -> set[str]:
     """
@@ -314,6 +319,11 @@ def _is_module_entry_point(relative_path: str) -> bool:
     for seg in _DYNAMIC_PATH_SEGMENTS:
         if seg in norm:
             return True
+    # Bundler output: content-hashed chunk filenames are never source modules.
+    # Matches webpack/Metro/Vite patterns like "5333.e1ed8bd7bd6b4bbb.js",
+    # "layout-cde9c4d7a42012df.js", "ad2866b8.6c51983a1eb56136.js".
+    if _CONTENT_HASH_RE.search(stem):
+        return True
     return False
 
 
