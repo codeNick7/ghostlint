@@ -208,8 +208,12 @@ _PY_IMPORT_RE = re.compile(
 
 # JS/TS: import ... from 'path' / import('path') / require('path')
 # Captures the quoted module path string (group 1).
+# Handles:
+#   - Relative:      ./utils  ../components/Button
+#   - Package:       react  next/link  @radix-ui/react-dialog
+#   - Path aliases:  @/components/ui/button  ~/lib/utils  #/utils  src/utils
 _JS_IMPORT_RE = re.compile(
-    r"""(?:from\s+|import\s*\(|require\s*\()['"](\.{1,2}/[^'"]+|@?[\w][\w/.-]*)['"]\)?""",
+    r"""(?:from\s+|import\s*\(|require\s*\()['"](\.{1,2}/[^'"]+|[@~#]/[^'"]+|@[\w][\w/.-]*|[\w][\w/.-]*)['"]\)?""",
     re.MULTILINE,
 )
 
@@ -285,16 +289,24 @@ def _build_referenced_module_keys(context: AnalysisContext) -> set[str]:
                 # Strip trailing /index
                 if norm.endswith("/index"):
                     norm = norm[: -len("/index")]
-                # Strip leading ./ or ../
-                norm = norm.lstrip("./").lstrip("../").lstrip("./")
-                # Register all path-segment suffixes
-                parts = [p for p in norm.replace("/", ".").split(".") if p]
-                for i in range(len(parts)):
-                    referenced.add(".".join(parts[i:]))
-                # Also register the raw slash form for path matching
+                # Strip path alias prefixes: @/ ~/  #/  (Next.js, Vite, Nuxt)
+                # e.g. "@/components/ui/button" → "components/ui/button"
+                for alias_prefix in ("@/", "~/", "#/", "src/"):
+                    if norm.startswith(alias_prefix):
+                        norm = norm[len(alias_prefix):]
+                        break
+                # Strip relative markers ./ and ../
+                while norm.startswith("../"):
+                    norm = norm[3:]
+                if norm.startswith("./"):
+                    norm = norm[2:]
+                if not norm:
+                    continue
+                # Register all path-segment suffixes in both dotted and slash form
                 slash_parts = [p for p in norm.split("/") if p]
                 for i in range(len(slash_parts)):
                     referenced.add("/".join(slash_parts[i:]))
+                    referenced.add(".".join(slash_parts[i:]))
 
     return referenced
 

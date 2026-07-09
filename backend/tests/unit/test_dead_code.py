@@ -126,6 +126,34 @@ def test_does_not_flag_django_receiver() -> None:
     assert not any("on_user_save" in f.title for f in findings)
 
 
+def test_path_alias_imports_resolve_correctly() -> None:
+    """@/ and ~/ path alias imports (Next.js, Vite) must clear the referenced module."""
+    from tiramasu_engine.graph.context import AnalysisContext
+    from tiramasu_engine.graph.symbol_graph import SymbolGraph
+    from tests.unit.conftest import make_file_info
+
+    files = [
+        make_file_info("components/ui/button.tsx",
+                       'export function Button() {}', "typescript"),
+        make_file_info("components/ui/ghost.tsx",
+                       'export function Ghost() {}', "typescript"),
+        make_file_info("lib/utils.ts",
+                       'export function cn() {}', "typescript"),
+        make_file_info("app/page.tsx",
+                       'import { Button } from "@/components/ui/button"\nexport default function Page() {}',
+                       "typescript"),
+        make_file_info("app/layout.tsx",
+                       'import { cn } from "~/lib/utils"\nexport default function Layout() {}',
+                       "typescript"),
+    ]
+    ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=".")
+    findings = DeadCodeDetector()._detect_unused_modules(ctx)
+    flagged = [f.evidence[0].file_path for f in findings]
+    assert "components/ui/ghost.tsx" in flagged, "Genuinely unused component should be flagged"
+    assert "components/ui/button.tsx" not in flagged, "@/ alias import should clear button.tsx"
+    assert "lib/utils.ts" not in flagged, "~/ alias import should clear utils.ts"
+
+
 def test_detects_unused_module_python() -> None:
     """A Python file never imported by any other file is flagged as an unused module."""
     from tiramasu_engine.graph.context import AnalysisContext
