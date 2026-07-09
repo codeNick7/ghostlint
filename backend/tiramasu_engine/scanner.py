@@ -28,6 +28,7 @@ class ScanConfig:
     exclude_dirs: set[str] = field(default_factory=set)
     confidence_threshold: float = 0.6
     engines: list[str] = field(default_factory=lambda: [ALL_ENGINES])
+    changed_files: list[str] | None = None  # if set, filter findings to these files only
 
 
 class Scanner:
@@ -93,9 +94,14 @@ class Scanner:
 
         # 3. Run selected engines
         all_findings = []
+        changed_set = set(self.config.changed_files) if self.config.changed_files else None
         for detector in detectors:
             try:
                 findings = detector.detect(context)
+                # Filter to changed files only (symbol graph still built from ALL files
+                # for accurate cross-file reference resolution)
+                if changed_set is not None:
+                    findings = [f for f in findings if f.primary_file in changed_set]
                 all_findings.extend(findings)
             except Exception:
                 pass

@@ -1,0 +1,42 @@
+name: 'Tiramasu Repository Health'
+description: 'Scan repository for health issues: dead code, duplicates, drift, and more.'
+author: 'Tiramasu'
+
+branding:
+  icon: 'activity'
+  color: 'orange'
+
+inputs:
+  engines:
+    description: 'Comma-separated list of engines to run (default: all)'
+    required: false
+    default: 'all'
+  min_confidence:
+    description: 'Minimum confidence threshold (0.0-1.0)'
+    required: false
+    default: '0.6'
+  fail_on_score_below:
+    description: 'Fail the action if health score drops below this value (0-100)'
+    required: false
+    default: '70'
+  format:
+    description: 'Output format: terminal or json'
+    required: false
+    default: 'terminal'
+
+outputs:
+  health_score:
+    description: 'Overall repository health score (0-100)'
+  findings_count:
+    description: 'Total number of findings across all engines'
+  report_path:
+    description: 'Path to the JSON report file (only when format=json)'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    ENGINES: ${{ inputs.engines }}
+    MIN_CONFIDENCE: ${{ inputs.min_confidence }}
+    FAIL_BELOW: ${{ inputs.fail_on_score_below }}
+    FORMAT: ${{ inputs.format }}

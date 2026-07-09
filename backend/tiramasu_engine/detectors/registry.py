@@ -17,14 +17,14 @@ def _load() -> dict[str, EngineSpec]:
     # Imported lazily inside function to keep module load fast and avoid
     # circular imports. Each import only pays cost when registry is first built.
     from tiramasu_engine.detectors.dead_code import DeadCodeDetector
-    from tiramasu_engine.detectors.duplicate_logic.detector import _StubDetector as DuplicateDetector
-    from tiramasu_engine.detectors.refactor.detector import _StubDetector as RefactorDetector
-    from tiramasu_engine.detectors.arch_drift.detector import _StubDetector as ArchDriftDetector
-    from tiramasu_engine.detectors.config_health.detector import _StubDetector as ConfigDetector
-    from tiramasu_engine.detectors.doc_health.detector import _StubDetector as DocDetector
-    from tiramasu_engine.detectors.dependency_health.detector import _StubDetector as DependencyDetector
-    from tiramasu_engine.detectors.test_health.detector import _StubDetector as TestDetector
-    from tiramasu_engine.detectors.naming.detector import _StubDetector as NamingDetector
+    from tiramasu_engine.detectors.duplicate_logic.detector import DuplicateLogicDetector
+    from tiramasu_engine.detectors.refactor.detector import RefactorDetector
+    from tiramasu_engine.detectors.arch_drift.detector import ArchDriftDetector
+    from tiramasu_engine.detectors.config_health.detector import ConfigHealthDetector
+    from tiramasu_engine.detectors.doc_health.detector import DocHealthDetector
+    from tiramasu_engine.detectors.dependency_health.detector import DependencyHealthDetector
+    from tiramasu_engine.detectors.test_health.detector import TestHealthDetector
+    from tiramasu_engine.detectors.naming.detector import NamingConsistencyDetector
 
     specs = [
         EngineSpec(
@@ -38,15 +38,15 @@ def _load() -> dict[str, EngineSpec]:
         EngineSpec(
             name="duplicate_logic",
             label="Duplicate Logic",
-            phase=2,
+            phase=1,
             speed="slow",
-            description="Detects semantically similar implementations via AST + embeddings.",
-            cls=DuplicateDetector,
+            description="Detects structurally identical functions via AST fingerprinting.",
+            cls=DuplicateLogicDetector,
         ),
         EngineSpec(
             name="refactor",
             label="Incomplete Refactors",
-            phase=2,
+            phase=1,
             speed="medium",
             description="Detects coexisting old/new APIs and abandoned migration leftovers.",
             cls=RefactorDetector,
@@ -54,7 +54,7 @@ def _load() -> dict[str, EngineSpec]:
         EngineSpec(
             name="arch_drift",
             label="Architectural Drift",
-            phase=2,
+            phase=1,
             speed="medium",
             description="Detects boundary violations, cyclic dependencies, and layer leakage.",
             cls=ArchDriftDetector,
@@ -62,42 +62,42 @@ def _load() -> dict[str, EngineSpec]:
         EngineSpec(
             name="config_health",
             label="Configuration Health",
-            phase=2,
+            phase=1,
             speed="fast",
-            description="Detects conflicts and drift across .env, Docker, K8s, and app configs.",
-            cls=ConfigDetector,
+            description="Detects conflicts and drift across .env config files.",
+            cls=ConfigHealthDetector,
         ),
         EngineSpec(
             name="doc_health",
             label="Documentation Health",
-            phase=2,
+            phase=1,
             speed="medium",
-            description="Detects stale comments, misleading docstrings, and outdated READMEs.",
-            cls=DocDetector,
+            description="Detects stale TODO/FIXME comments and misleading docstrings.",
+            cls=DocHealthDetector,
         ),
         EngineSpec(
             name="dependency_health",
             label="Dependency Health",
-            phase=2,
+            phase=1,
             speed="fast",
-            description="Detects unused, duplicate, and outdated packages.",
-            cls=DependencyDetector,
+            description="Detects unused, duplicate, and undeclared packages.",
+            cls=DependencyHealthDetector,
         ),
         EngineSpec(
             name="test_health",
             label="Test Health",
-            phase=2,
+            phase=1,
             speed="medium",
-            description="Detects orphan tests, obsolete snapshots, and missing coverage after refactors.",
-            cls=TestDetector,
+            description="Detects orphan tests calling functions that no longer exist.",
+            cls=TestHealthDetector,
         ),
         EngineSpec(
             name="naming",
             label="Naming Consistency",
-            phase=2,
+            phase=1,
             speed="slow",
             description="Detects duplicate DTOs, near-identical models, and inconsistent conventions.",
-            cls=NamingDetector,
+            cls=NamingConsistencyDetector,
         ),
     ]
     return {s.name: s for s in specs}

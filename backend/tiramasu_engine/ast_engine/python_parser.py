@@ -36,13 +36,16 @@ def _walk_definitions(
     defs: list[SymbolDef],
     parent_class: str | None = None,
     exported_names: set[str] | None = None,
+    inherited_decorators: list[str] | None = None,
 ) -> None:
     for child in node.children:
         if child.type == "function_definition":
             name_node = child.child_by_field_name("name")
             if name_node:
                 name = _node_text(name_node, source)
-                decorators = _get_decorators(child, source)
+                # Decorators are on the function_definition node itself (for class methods)
+                # OR passed in from a parent decorated_definition node
+                decorators = inherited_decorators or _get_decorators(child, source)
                 is_private = name.startswith("_") and not name.startswith("__")
                 is_entry = name in ENTRY_POINT_NAMES or name.startswith("test_")
                 is_exported = (exported_names is None or name in (exported_names or set())) and not is_private
@@ -68,6 +71,7 @@ def _walk_definitions(
             if name_node:
                 class_name = _node_text(name_node, source)
                 is_private = class_name.startswith("_")
+                class_decorators = inherited_decorators or []
                 defs.append(SymbolDef(
                     name=class_name,
                     kind="class",
@@ -76,11 +80,17 @@ def _walk_definitions(
                     line_end=child.end_point[0] + 1,
                     is_private=is_private,
                     is_exported=not is_private,
-                    decorators=[],
+                    decorators=class_decorators,
                 ))
                 body = child.child_by_field_name("body")
                 if body:
                     _walk_definitions(body, source, file_path, defs, parent_class=class_name)
+
+        elif child.type == "decorated_definition":
+            # Collect decorators from this node, then recurse into the inner definition
+            child_decorators = _get_decorators(child, source)
+            _walk_definitions(child, source, file_path, defs, parent_class, exported_names,
+                              inherited_decorators=child_decorators)
 
         elif child.type in ("block", "module"):
             _walk_definitions(child, source, file_path, defs, parent_class)

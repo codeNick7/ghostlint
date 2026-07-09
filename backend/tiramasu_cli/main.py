@@ -35,6 +35,10 @@ def scan(
     ),
     format: str = typer.Option("terminal", "--format", "-f", help="Output format: terminal | json"),
     min_confidence: float = typer.Option(0.6, "--min-confidence", help="Minimum confidence threshold (0.0–1.0)"),
+    changed: bool = typer.Option(
+        False, "--changed",
+        help="Only report findings in files changed vs HEAD (git repos only).",
+    ),
 ) -> None:
     """Scan a repository for health issues.
 
@@ -59,11 +63,23 @@ def scan(
     else:
         engines = [ALL_ENGINES]
 
+    changed_files: list[str] | None = None
+    if changed:
+        from tiramasu_engine.git_analyzer import GitAnalyzer
+        analyzer = GitAnalyzer(path)
+        if analyzer.is_git_repo():
+            changed_files = analyzer.get_changed_files()
+            if not changed_files:
+                console.print("[yellow]No changed files detected vs HEAD.[/yellow]")
+        else:
+            console.print("[yellow]Not a git repository — ignoring --changed flag.[/yellow]")
+
     config = ScanConfig(
         repo_path=path,
         scan_mode="quick" if quick else "full",
         confidence_threshold=min_confidence,
         engines=engines,
+        changed_files=changed_files,
     )
     scanner = Scanner(config)
 
