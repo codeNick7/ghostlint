@@ -117,6 +117,30 @@ def _walk_references(node: Node, source: bytes, file_path: str, refs: list[Symbo
                         kind="call",
                     ))
 
+        # Also track identifiers passed as arguments — e.g. add_task(run_precompute)
+        # or thread = Thread(target=worker). These are valid references even though the
+        # symbol is not being called at this point in the source.
+        args_node = node.child_by_field_name("arguments")
+        if args_node:
+            for arg in args_node.children:
+                if arg.type == "identifier":
+                    refs.append(SymbolRef(
+                        name=_node_text(arg, source),
+                        file_path=file_path,
+                        line=arg.start_point[0] + 1,
+                        kind="call",
+                    ))
+                elif arg.type == "keyword_argument":
+                    # keyword_argument: name=value — capture the value if it's an identifier
+                    val = arg.child_by_field_name("value")
+                    if val and val.type == "identifier":
+                        refs.append(SymbolRef(
+                            name=_node_text(val, source),
+                            file_path=file_path,
+                            line=val.start_point[0] + 1,
+                            kind="call",
+                        ))
+
     elif node.type == "import_from_statement":
         for child in node.children:
             if child.type == "dotted_name" and child != node.child_by_field_name("module_name"):

@@ -60,3 +60,37 @@ def test_parse_nested_function() -> None:
     names = [d.name for d in defs]
     assert "outer" in names
     assert "inner" in names
+
+
+def test_parse_function_passed_as_argument() -> None:
+    """Functions passed as args (e.g. add_task(fn), Thread(target=fn)) must be tracked as refs."""
+    code = (
+        "def run_precompute():\n"
+        "    pass\n"
+        "\n"
+        "def start(background_tasks):\n"
+        "    background_tasks.add_task(run_precompute)\n"
+    )
+    fi = make_file_info("tasks.py", code)
+    _, refs = parser.parse_file(fi)
+    ref_names = [r.name for r in refs]
+    assert "run_precompute" in ref_names, (
+        "Function passed as positional argument should be tracked as a reference"
+    )
+
+
+def test_parse_keyword_argument_reference() -> None:
+    """Functions passed as keyword args (e.g. Thread(target=worker)) must be tracked."""
+    code = (
+        "def worker():\n"
+        "    pass\n"
+        "\n"
+        "import threading\n"
+        "t = threading.Thread(target=worker)\n"
+    )
+    fi = make_file_info("threads.py", code)
+    _, refs = parser.parse_file(fi)
+    ref_names = [r.name for r in refs]
+    assert "worker" in ref_names, (
+        "Function passed as keyword argument value should be tracked as a reference"
+    )
