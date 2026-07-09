@@ -14,6 +14,7 @@ class SymbolDef:
     is_exported: bool   # part of module's public API
     decorators: list[str] = field(default_factory=list)
     parent_class: str | None = None
+    base_classes: list[str] = field(default_factory=list)
 
 
 @dataclass

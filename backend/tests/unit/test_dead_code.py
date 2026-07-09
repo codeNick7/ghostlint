@@ -87,6 +87,45 @@ def test_does_not_flag_alembic_upgrade_downgrade() -> None:
     )
 
 
+def test_does_not_flag_django_model() -> None:
+    """Classes inheriting from framework base classes must not be flagged."""
+    framework_cases = [
+        ("Article", "class", "models.py", ["Model"]),
+        ("ArticleListView", "class", "views.py", ["ListView"]),
+        ("ArticleSerializer", "class", "serializers.py", ["ModelSerializer"]),
+        ("UserSchema", "class", "schemas.py", ["BaseModel"]),
+        ("ArticleAdmin", "class", "admin.py", ["ModelAdmin"]),
+        ("UserTask", "class", "tasks.py", ["Task"]),
+    ]
+    for name, kind, fp, bases in framework_cases:
+        sym = make_symbol_def(name, kind=kind, file_path=fp)
+        sym = type(sym)(  # rebuild with base_classes field
+            **{**sym.__dict__, "base_classes": bases}
+        )
+        ctx = make_context(defs=[sym])
+        findings = DeadCodeDetector().detect(ctx)
+        flagged = [f.title for f in findings if name in f.title and "module" not in f.title]
+        assert not flagged, f"{name}({bases}) should not be flagged, got: {flagged}"
+
+
+def test_does_not_flag_celery_shared_task() -> None:
+    """@shared_task decorated functions are called by Celery worker, not by import."""
+    sym = make_symbol_def("send_email", kind="function", file_path="tasks.py",
+                          decorators=["@shared_task"])
+    ctx = make_context(defs=[sym])
+    findings = DeadCodeDetector().detect(ctx)
+    assert not any("send_email" in f.title for f in findings)
+
+
+def test_does_not_flag_django_receiver() -> None:
+    """@receiver decorated functions are called by Django's signal dispatcher."""
+    sym = make_symbol_def("on_user_save", kind="function", file_path="signals.py",
+                          decorators=["@receiver(post_save, sender=User)"])
+    ctx = make_context(defs=[sym])
+    findings = DeadCodeDetector().detect(ctx)
+    assert not any("on_user_save" in f.title for f in findings)
+
+
 def test_detects_unused_module_python() -> None:
     """A Python file never imported by any other file is flagged as an unused module."""
     from tiramasu_engine.graph.context import AnalysisContext

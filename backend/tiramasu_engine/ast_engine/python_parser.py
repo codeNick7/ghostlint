@@ -29,6 +29,23 @@ def _get_decorators(func_node: Node, source: bytes) -> list[str]:
     return decorators
 
 
+def _get_base_classes(class_node: Node, source: bytes) -> list[str]:
+    """Extract base class names from a class_definition node's argument_list."""
+    bases: list[str] = []
+    arg_list = class_node.child_by_field_name("superclasses")
+    if arg_list is None:
+        return bases
+    for child in arg_list.children:
+        if child.type == "identifier":
+            bases.append(_node_text(child, source))
+        elif child.type == "attribute":
+            # e.g. models.Model → take just the attribute name "Model"
+            attr = child.child_by_field_name("attribute")
+            if attr:
+                bases.append(_node_text(attr, source))
+    return bases
+
+
 def _walk_definitions(
     node: Node,
     source: bytes,
@@ -72,6 +89,7 @@ def _walk_definitions(
                 class_name = _node_text(name_node, source)
                 is_private = class_name.startswith("_")
                 class_decorators = inherited_decorators or []
+                base_classes = _get_base_classes(child, source)
                 defs.append(SymbolDef(
                     name=class_name,
                     kind="class",
@@ -81,6 +99,7 @@ def _walk_definitions(
                     is_private=is_private,
                     is_exported=not is_private,
                     decorators=class_decorators,
+                    base_classes=base_classes,
                 ))
                 body = child.child_by_field_name("body")
                 if body:

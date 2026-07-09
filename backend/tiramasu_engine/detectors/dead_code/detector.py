@@ -29,13 +29,114 @@ _PATH_ENTRY_POINTS: dict[str, set[str]] = {
     "migrations": {"upgrade", "downgrade"},
 }
 
-# Decorator patterns that indicate the symbol is an entry point
+# Decorator patterns that indicate the symbol is a framework-managed entry point.
+# Matched as substring so "@router.get('/path')" matches "@router.get".
 _ENTRY_DECORATORS = {
-    "@app.route", "@app.get", "@app.post", "@app.put", "@app.delete",
-    "@app.patch", "@router.get", "@router.post", "@router.put",
-    "@router.delete", "@router.patch", "@click.command", "@click.group",
-    "@pytest.fixture", "@property", "@staticmethod", "@classmethod",
+    # FastAPI / Starlette
+    "@app.get", "@app.post", "@app.put", "@app.delete", "@app.patch",
+    "@app.head", "@app.options", "@app.trace", "@app.websocket",
+    "@app.on_event", "@app.middleware", "@app.exception_handler",
+    "@router.get", "@router.post", "@router.put", "@router.delete",
+    "@router.patch", "@router.head", "@router.options", "@router.websocket",
+    # Flask / Blueprint
+    "@app.route", "@bp.route", "@blueprint.route",
+    "@app.before_request", "@app.after_request", "@app.teardown_request",
+    "@app.teardown_appcontext", "@app.errorhandler", "@app.context_processor",
+    "@app.template_filter", "@app.template_global",
+    "@bp.before_request", "@bp.after_request", "@bp.errorhandler",
+    "@login_required", "@permission_required",  # Flask-Login / Django
+    # Django
+    "@csrf_exempt", "@csrf_protect",
+    "@require_http_methods", "@require_GET", "@require_POST", "@require_safe",
+    "@cache_page", "@cache_control", "@never_cache",
+    "@receiver",            # signal handler — called by Django's signal dispatcher
+    "@admin.register",      # registers a ModelAdmin with Django admin
+    "@transaction.atomic",
+    "@action",              # Django REST Framework viewset action
+    "@api_view",            # DRF function-based view
+    # Celery
+    "@shared_task", "@app.task", "@celery.task", "@periodic_task",
+    "@task",
+    # APScheduler / schedule / rq
+    "@scheduler.scheduled_job", "@job",
+    # SQLAlchemy event listeners
+    "@event.listens_for",
+    # Click / Typer
+    "@click.command", "@click.group", "@click.pass_context", "@click.pass_obj",
     "@app.command", "@typer.command",
+    # pytest
+    "@pytest.fixture", "@pytest.mark",
+    # Python built-ins that fundamentally change how a symbol is used
+    "@property", "@staticmethod", "@classmethod",
+    "@functools.lru_cache", "@functools.cache", "@functools.cached_property",
+    "@functools.wraps",
+    # Pydantic
+    "@validator", "@field_validator", "@model_validator", "@root_validator",
+    "@computed_field",
+    # dataclasses / attrs
+    "@dataclass",
+    # Abstract base classes
+    "@abstractmethod", "@abc.abstractmethod",
+    # Overrides (may be called polymorphically)
+    "@override",
+}
+
+# Base class names that indicate a class is instantiated or called by a
+# framework at runtime — not through explicit construction in application code.
+_ENTRY_BASE_CLASSES = {
+    # Django ORM
+    "Model",                        # models.Model
+    "Migration",                    # database migration — run by manage.py migrate
+    "AppConfig",                    # apps.py — loaded by INSTALLED_APPS
+    "BaseCommand",                  # management command — invoked by manage.py
+    # Django views (class-based)
+    "View", "TemplateView", "RedirectView",
+    "ListView", "DetailView",
+    "CreateView", "UpdateView", "DeleteView",
+    "FormView", "BaseFormView",
+    "ArchiveIndexView", "YearArchiveView", "MonthArchiveView", "DayArchiveView",
+    # Django admin
+    "ModelAdmin", "TabularInline", "StackedInline", "InlineModelAdmin",
+    "AdminSite",
+    # Django forms
+    "Form", "ModelForm", "BaseFormSet", "BaseModelFormSet",
+    # Django REST Framework
+    "APIView", "GenericAPIView",
+    "ListAPIView", "CreateAPIView", "RetrieveAPIView",
+    "UpdateAPIView", "DestroyAPIView",
+    "ListCreateAPIView", "RetrieveUpdateAPIView", "RetrieveDestroyAPIView",
+    "RetrieveUpdateDestroyAPIView",
+    "ViewSet", "ModelViewSet", "ReadOnlyModelViewSet",
+    "GenericViewSet",
+    "Serializer", "ModelSerializer", "ListSerializer",
+    "HyperlinkedModelSerializer", "HyperlinkedSerializer",
+    "BasePermission",               # DRF permission class
+    "BaseAuthentication",           # DRF auth class
+    "BaseThrottle",                 # DRF throttle class
+    "BaseRenderer", "BaseParser",   # DRF renderers/parsers
+    "BaseFilterBackend",            # DRF filter backend
+    # Django signals / middleware
+    "MiddlewareMixin",
+    # Django test
+    "TestCase", "SimpleTestCase", "TransactionTestCase", "LiveServerTestCase",
+    # SQLAlchemy / Flask-SQLAlchemy
+    "Base",                         # declarative base
+    "DeclarativeBase", "DeclarativeBaseNoMeta",
+    "MappedAsDataclass",
+    # Flask
+    "MethodView", "View",           # Flask class-based views
+    # Pydantic
+    "BaseModel", "BaseSettings",    # always constructed from external data
+    # Celery
+    "Task",                         # custom Celery task class
+    # Python stdlib patterns used by frameworks
+    "ABC",                          # abstract base — never directly instantiated
+    "Enum", "IntEnum", "StrEnum", "Flag", "IntFlag",  # discovered by name
+    "TypedDict",                    # used by type checkers, not directly called
+    "Protocol",                     # structural subtyping — never instantiated
+    "NamedTuple",
+    # Click
+    "MultiCommand", "Group",
 }
 
 
@@ -52,6 +153,9 @@ def _is_entry_point(sym: SymbolDef) -> bool:
         for pattern in _ENTRY_DECORATORS:
             if pattern in dec:
                 return True
+    # Class inherits from a framework base that is instantiated/discovered at runtime
+    if sym.kind == "class" and any(b in _ENTRY_BASE_CLASSES for b in sym.base_classes):
+        return True
     # Framework-managed functions called by external tools at runtime (e.g. Alembic)
     normalized = sym.file_path.replace("\\", "/")
     for path_segment, names in _PATH_ENTRY_POINTS.items():
