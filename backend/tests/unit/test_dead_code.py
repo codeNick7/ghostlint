@@ -87,6 +87,44 @@ def test_does_not_flag_alembic_upgrade_downgrade() -> None:
     )
 
 
+def test_detects_unused_module_python() -> None:
+    """A Python file never imported by any other file is flagged as an unused module."""
+    from tiramasu_engine.graph.context import AnalysisContext
+    from tiramasu_engine.graph.symbol_graph import SymbolGraph
+    from tests.unit.conftest import make_file_info
+
+    files = [
+        make_file_info("src/main.py", "from src.utils.helpers import help\n"),
+        make_file_info("src/utils/helpers.py", "def help(): pass\n"),
+        make_file_info("src/orphan.py", "def noop(): pass\n"),  # never imported
+    ]
+    ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=".")
+    findings = DeadCodeDetector()._detect_unused_modules(ctx)
+    flagged = [f.evidence[0].file_path for f in findings]
+    assert "src/orphan.py" in flagged
+    assert "src/utils/helpers.py" not in flagged
+    assert "src/main.py" not in flagged  # main.py is entry point stem
+
+
+def test_detects_unused_module_typescript() -> None:
+    """A TS component never imported by any other file is flagged."""
+    from tiramasu_engine.graph.context import AnalysisContext
+    from tiramasu_engine.graph.symbol_graph import SymbolGraph
+    from tests.unit.conftest import make_file_info
+
+    files = [
+        make_file_info("components/Button.tsx", "export default function Button() {}", "typescript"),
+        make_file_info("pages/index.tsx", 'import Button from "../components/Button"\nexport default function Home() {}', "typescript"),
+        make_file_info("components/Ghost.tsx", "export default function Ghost() {}", "typescript"),
+    ]
+    ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=".")
+    findings = DeadCodeDetector()._detect_unused_modules(ctx)
+    flagged = [f.evidence[0].file_path for f in findings]
+    assert "components/Ghost.tsx" in flagged
+    assert "components/Button.tsx" not in flagged
+    assert "pages/index.tsx" not in flagged  # index is entry point stem
+
+
 def test_findings_sorted_by_confidence() -> None:
     defs = [
         make_symbol_def(f"func_{i}", kind="function", file_path="utils.py", is_private=(i % 2 == 0))
