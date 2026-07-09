@@ -1,4 +1,5 @@
 from __future__ import annotations
+import hmac
 import os
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Security
@@ -34,9 +35,11 @@ def _load_api_key() -> str:
         return key_path.read_text().strip()
     import secrets
     key_path.parent.mkdir(mode=0o700, exist_ok=True)
+    os.chmod(key_path.parent, 0o700)
     key = secrets.token_urlsafe(32)
-    key_path.write_text(key)
-    key_path.chmod(0o600)
+    fd = os.open(str(key_path), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    os.write(fd, key.encode())
+    os.close(fd)
     return key
 
 
@@ -51,7 +54,7 @@ def _get_server_key() -> str:
 
 
 def _verify_api_key(api_key: str | None = Security(_api_key_header)) -> str:
-    if api_key != _get_server_key():
+    if not api_key or not hmac.compare_digest(api_key, _get_server_key()):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
     return api_key
 
@@ -63,7 +66,7 @@ def _validate_repo_path(raw: str) -> Path:
         raise HTTPException(status_code=400, detail="repo_path does not exist")
     if not resolved.is_dir():
         raise HTTPException(status_code=400, detail="repo_path must be a directory")
-    if not any(str(resolved).startswith(str(root)) for root in _ALLOWED_ROOTS):
+    if not any(resolved == root or resolved.is_relative_to(root) for root in _ALLOWED_ROOTS):
         raise HTTPException(
             status_code=403,
             detail=f"repo_path is outside allowed roots: {[str(r) for r in _ALLOWED_ROOTS]}",
