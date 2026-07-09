@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tiramasu"
+version = "0.1.0"
+description = "Repository Health Intelligence"
+requires-python = ">=3.12"
+dependencies = [
+    # AST parsing
+    "tree-sitter>=0.25.0",
+    "tree-sitter-python>=0.23.0",
+    "tree-sitter-javascript>=0.23.0",
+    # Graph engine
+    "networkx>=3.3",
+    # Git history
+    "gitpython>=3.1.43",
+    # Data models & validation
+    "pydantic>=2.7.0",
+    # Storage
+    "sqlalchemy>=2.0.30",
+    "aiosqlite>=0.20.0",
+    # CLI
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    # API
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+    # LLM (Phase 2)
+    "litellm>=1.40.0",
+    # Config
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+tiramasu = "tiramasu_cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tiramasu_engine", "tiramasu_cli", "app"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+]
