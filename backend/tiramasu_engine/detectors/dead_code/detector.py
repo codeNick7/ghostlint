@@ -18,6 +18,15 @@ _SKIP_NAMES = {
     "app", "router",  # common FastAPI / Flask entry points
 }
 
+# File path patterns whose functions are called by external frameworks at runtime.
+# Key: path segment that must appear in the file path.
+# Value: set of function names that are framework-managed entry points in that context.
+_PATH_ENTRY_POINTS: dict[str, set[str]] = {
+    "alembic/versions": {"upgrade", "downgrade"},
+    "migrations/versions": {"upgrade", "downgrade"},
+    "migrations": {"upgrade", "downgrade"},
+}
+
 # Decorator patterns that indicate the symbol is an entry point
 _ENTRY_DECORATORS = {
     "@app.route", "@app.get", "@app.post", "@app.put", "@app.delete",
@@ -41,6 +50,11 @@ def _is_entry_point(sym: SymbolDef) -> bool:
         for pattern in _ENTRY_DECORATORS:
             if pattern in dec:
                 return True
+    # Framework-managed functions called by external tools at runtime (e.g. Alembic)
+    normalized = sym.file_path.replace("\\", "/")
+    for path_segment, names in _PATH_ENTRY_POINTS.items():
+        if path_segment in normalized and sym.name in names:
+            return True
     return False
 
 

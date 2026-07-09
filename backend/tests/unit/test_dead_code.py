@@ -72,6 +72,21 @@ def test_confidence_higher_for_private() -> None:
         assert private_f.confidence >= public_f.confidence
 
 
+def test_does_not_flag_alembic_upgrade_downgrade() -> None:
+    """upgrade/downgrade in alembic migration files are called by Alembic at runtime."""
+    defs = [
+        make_symbol_def("upgrade", kind="function", file_path="backend/alembic/versions/20251108_add_users.py"),
+        make_symbol_def("downgrade", kind="function", file_path="backend/alembic/versions/20251108_add_users.py"),
+        make_symbol_def("upgrade", kind="function", file_path="migrations/versions/0001_init.py"),
+    ]
+    ctx = make_context(defs=defs)
+    findings = DeadCodeDetector().detect(ctx)
+    flagged_titles = {f.title for f in findings}
+    assert not any("upgrade" in t or "downgrade" in t for t in flagged_titles), (
+        f"Alembic migration entry points should not be flagged: {flagged_titles}"
+    )
+
+
 def test_findings_sorted_by_confidence() -> None:
     defs = [
         make_symbol_def(f"func_{i}", kind="function", file_path="utils.py", is_private=(i % 2 == 0))
