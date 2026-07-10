@@ -7,14 +7,33 @@ from tiramasu_engine.models.findings import (
     DetectionCategory, Evidence, EffortLevel, Finding, RiskLevel,
 )
 
+# Stale markers. We intentionally do NOT include TEMP (matches "temperature"),
+# REMOVEME, or NOCOMMIT — they're not widely-used stale-comment conventions and
+# TEMP produces many false positives on the word "temp" inside prose.
+_STALE_TAGS = r"TODO|FIXME|HACK|XXX|BUG|WORKAROUND"
+
+# Match the marker only when it appears at (or near) the START of a comment,
+# optionally after the comment marker and a little whitespace. This avoids
+# matching the words "temp"/"bug"/"todo" buried inside explanatory prose like
+#   "# Cache the result (updated forecast-based temp/visibility)"
+# or user-facing text like "how do I report a bug?".
 _STALE_COMMENT_RE = re.compile(
-    r"#.*?\b(TODO|FIXME|HACK|XXX|TEMP|REMOVEME|NOCOMMIT|BUG|WORKAROUND)\b",
+    rf"#\s*({_STALE_TAGS})\b",
     re.IGNORECASE,
 )
 
 _JS_STALE_COMMENT_RE = re.compile(
-    r"(?://|/\*).*?\b(TODO|FIXME|HACK|XXX|TEMP|REMOVEME|NOCOMMIT|BUG|WORKAROUND)\b",
+    rf"(?://|/\*+)\s*({_STALE_TAGS})\b",
     re.IGNORECASE,
+)
+
+# Path substrings marking generated/build artifacts or legacy backup directories
+# that must not be linted for stale comments. Minified bundles contain user-facing
+# text; backup copies are not maintained source and will be removed wholesale.
+_SKIP_PATH_PARTS = (
+    "/_next/", "/dist/", "/build/", "/out/", "/public/",
+    "/.turbo/", "/.svelte-kit/",
+    "-backup/", "frontend-backup/",  # legacy backup directories
 )
 
 # Maximum number of stale comment findings per file (to avoid noise)
@@ -28,6 +47,11 @@ class DocHealthDetector(BaseDetector):
         findings: list[Finding] = []
 
         for file_info in context.files:
+            norm = file_info.relative_path.replace("\\", "/")
+            # Skip generated/build artifacts entirely
+            if any(part in norm for part in _SKIP_PATH_PARTS):
+                continue
+
             lines = file_info.content.splitlines()
             file_findings = 0
 

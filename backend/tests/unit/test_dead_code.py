@@ -133,9 +133,12 @@ def test_path_alias_imports_resolve_correctly() -> None:
     from tests.unit.conftest import make_file_info
 
     files = [
+        # components/ui/ is the shadcn library directory — suppressed entirely
+        # as a design-system-as-code install pattern (not dead code).
         make_file_info("components/ui/button.tsx",
                        'export function Button() {}', "typescript"),
-        make_file_info("components/ui/ghost.tsx",
+        # components/shared/ is a regular shared component tree — unused files here ARE flagged.
+        make_file_info("components/shared/ghost.tsx",
                        'export function Ghost() {}', "typescript"),
         make_file_info("lib/utils.ts",
                        'export function cn() {}', "typescript"),
@@ -149,8 +152,11 @@ def test_path_alias_imports_resolve_correctly() -> None:
     ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=".")
     findings = DeadCodeDetector()._detect_unused_modules(ctx)
     flagged = [f.evidence[0].file_path for f in findings]
-    assert "components/ui/ghost.tsx" in flagged, "Genuinely unused component should be flagged"
-    assert "components/ui/button.tsx" not in flagged, "@/ alias import should clear button.tsx"
+    # components/ui/ is suppressed as a shadcn library pattern — neither file flagged.
+    assert "components/ui/button.tsx" not in flagged, "shadcn ui/ dir should be suppressed entirely"
+    assert "components/ui/ghost.tsx" not in flagged, "shadcn ui/ dir should be suppressed entirely"
+    # Regular shared component that is genuinely unused should be flagged.
+    assert "components/shared/ghost.tsx" in flagged, "Genuinely unused component should be flagged"
     assert "lib/utils.ts" not in flagged, "~/ alias import should clear utils.ts"
 
 
@@ -201,3 +207,86 @@ def test_findings_sorted_by_confidence() -> None:
     findings = DeadCodeDetector().detect(ctx)
     confidences = [f.confidence for f in findings]
     assert confidences == sorted(confidences, reverse=True)
+
+
+def test_is_module_entry_point_main_script() -> None:
+    """A Python file with a top-level `if __name__ == "__main__":` guard is a
+    runnable entry point — it must not be flagged as an unused module."""
+    from tiramasu_engine.detectors.dead_code.detector import _is_module_entry_point
+
+    runnable = (
+        'def seed():\n    pass\n\n'
+        'if __name__ == "__main__":\n    seed()\n'
+    )
+    assert _is_module_entry_point("backend/app/db/init_db.py", content=runnable)
+    # Without the guard, the same file is not auto-skipped (still may be flagged).
+    assert not _is_module_entry_point(
+        "backend/app/db/init_db.py", content="def seed():\n    pass\n"
+    )
+    # Indented __main__ (inside a function) must NOT count — only top-level guards
+    # mean the file is runnable directly.
+    nested = (
+        'def run():\n    if __name__ == "__main__":\n        pass\n'
+    )
+    assert not _is_module_entry_point("backend/app/db/init_db.py", content=nested)
+
+
+def test_is_module_entry_point_claude_hook() -> None:
+    """Files under .claude/hooks/ are invoked by config (settings.local.json),
+    never imported as modules — they must not be flagged as unused."""
+    from tiramasu_engine.detectors.dead_code.detector import _is_module_entry_point
+
+    assert _is_module_entry_point(".claude/hooks/py_syntax_check.py")
+    assert _is_module_entry_point(".claude/hooks/ts_prettier_check.py")
+
+
+def test_unused_module_main_script_not_flagged(tmp_path) -> None:
+    """A Python file with `if __name__ == "__main__":` is a runnable script and
+    must not be flagged as an unused module, even though nothing imports it."""
+    from tiramasu_engine.graph.context import AnalysisContext
+    from tiramasu_engine.graph.symbol_graph import SymbolGraph
+    from tests.unit.conftest import make_file_info
+
+    runnable_content = (
+        'def seed():\n    pass\n\n'
+        'if __name__ == "__main__":\n    seed()\n'
+    )
+    files = [
+        make_file_info("app/main.py", "def run(): pass\n"),
+        make_file_info("app/db/init_db.py", runnable_content),  # __main__ script
+        make_file_info("app/orphan.py", "def dead(): pass\n"),  # genuinely unused
+    ]
+    # Use tmp_path as repo_path so the non-source scanner finds nothing extra.
+    ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=str(tmp_path))
+    findings = DeadCodeDetector()._detect_unused_modules(ctx)
+    flagged = {f.evidence[0].file_path for f in findings}
+    assert "app/db/init_db.py" not in flagged, "runnable __main__ script should not be flagged"
+    assert "app/orphan.py" in flagged, "genuinely unused module should still be flagged"
+
+
+def test_unused_module_referenced_in_shell_script_not_flagged(tmp_path) -> None:
+    """A module invoked via `python -m app.db.seed_catalog` in a deployment
+    shell script must not be flagged as an unused module."""
+    from tiramasu_engine.graph.context import AnalysisContext
+    from tiramasu_engine.graph.symbol_graph import SymbolGraph
+    from tests.unit.conftest import make_file_info
+
+    # Write a real .sh file in the tmp repo that references the module via -m.
+    (tmp_path / "deploy.sh").write_text(
+        "#!/bin/bash\npython -m app.db.seed_catalog --reset\n"
+    )
+    files = [
+        make_file_info("app/main.py", "def run(): pass\n"),
+        # seed_catalog has no __main__ guard and is never imported — but it IS
+        # referenced via `python -m` in deploy.sh.
+        make_file_info("app/db/seed_catalog.py", "def seed_database(): pass\n"),
+        make_file_info("app/orphan.py", "def dead(): pass\n"),  # genuinely unused
+    ]
+    ctx = AnalysisContext(files=files, symbol_graph=SymbolGraph(), repo_path=str(tmp_path))
+    findings = DeadCodeDetector()._detect_unused_modules(ctx)
+    flagged = {f.evidence[0].file_path for f in findings}
+    assert "app/db/seed_catalog.py" not in flagged, (
+        "module referenced via `python -m` in a .sh should not be flagged"
+    )
+    assert "app/orphan.py" in flagged, "genuinely unused module should still be flagged"
+
