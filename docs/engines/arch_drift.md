@@ -43,5 +43,5 @@ ARCH DRIFT  utils/db_helper.py imports from routes/api.py         src/utils/db_h
 ## Running This Engine
 
 ```bash
-tiramasu scan -e arch_drift
+tiramisu scan -e arch_drift
 ```

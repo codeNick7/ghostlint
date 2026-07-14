@@ -34,17 +34,17 @@ DOC HEALTH  HACK: workaround for library bug #4521          src/db/session.py:17
 
 ## Interpreting Results
 
-A high number of `TODO`/`FIXME` comments is a signal that technical debt is accumulating. Unlike linters, tiramasu tracks these across the entire repository and surfaces them in a health score that can trigger CI gates.
+A high number of `TODO`/`FIXME` comments is a signal that technical debt is accumulating. Unlike linters, tiramisu tracks these across the entire repository and surfaces them in a health score that can trigger CI gates.
 
 The health score impact of doc_health findings is intentionally small — a few TODOs shouldn't fail a build. Use `--min-confidence` to suppress doc_health findings entirely if desired:
 
 ```bash
-tiramasu scan --min-confidence 0.65   # doc_health findings (conf 0.6) will be filtered out
+tiramisu scan --min-confidence 0.65   # doc_health findings (conf 0.6) will be filtered out
 ```
 
 ## Running This Engine
 
 ```bash
-tiramasu scan -e doc_health
-tiramasu scan -e doc_health --min-confidence 0.65   # suppress doc findings, keep others
+tiramisu scan -e doc_health
+tiramisu scan -e doc_health --min-confidence 0.65   # suppress doc findings, keep others
 ```

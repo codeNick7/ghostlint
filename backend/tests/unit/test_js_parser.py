@@ -1,7 +1,7 @@
 """Tests for the JSParser."""
 from __future__ import annotations
 import pytest
-from tiramasu_engine.ast_engine.js_parser import JSParser
+from tiramisu_engine.ast_engine.js_parser import JSParser
 from tests.unit.conftest import make_file_info
 
 parser = JSParser()

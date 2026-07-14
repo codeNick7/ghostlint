@@ -2,7 +2,7 @@
 from __future__ import annotations
 from pathlib import Path
 import pytest
-from tiramasu_engine.indexer import FileIndexer, LANGUAGE_MAP
+from tiramisu_engine.indexer import FileIndexer, LANGUAGE_MAP
 
 
 def test_indexer_finds_python_files(tmp_path: Path) -> None:

@@ -12,8 +12,12 @@ node_modules/
 *.db
 *.db-shm
 *.db-wal
-.tiramasu/
+.tiramisu/
 .pytest_cache/
 .ruff_cache/
 htmlcov/
 .coverage
+# Tiramisu temp files
+tiramisu_report_*
+backend/report*.txt
+backend/report_analysis.md

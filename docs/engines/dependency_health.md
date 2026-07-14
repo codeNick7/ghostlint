@@ -51,6 +51,6 @@ DEPENDENCY HEALTH  'boto3' in package.json but no JS import found             pa
 ## Running This Engine
 
 ```bash
-tiramasu scan -e dependency_health
-tiramasu scan --quick   # dependency_health is included in --quick (fast engine)
+tiramisu scan -e dependency_health
+tiramisu scan --quick   # dependency_health is included in --quick (fast engine)
 ```

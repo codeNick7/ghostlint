@@ -7,7 +7,7 @@
 ### Resolved Decisions (2026-07-09)
 | # | Decision | Resolution |
 |---|----------|-----------|
-| 1 | CLI / product name | `tiramasu` |
+| 1 | CLI / product name | `tiramisu` |
 | 2 | Monorepo tooling | uv (Python) + pnpm (Node) — no Nx |
 | 3 | Embedding model | Local `all-MiniLM-L6-v2` as default; OpenAI optional for higher accuracy |
 | 4 | V1 web auth | No auth in V1 — local-only dashboard; GitHub OAuth deferred to V2 |
@@ -17,7 +17,7 @@
 
 ## 1. Product Summary
 
-Repository Health Intelligence (working name: **tiramasu**) is an AI-assisted engineering platform that continuously scans software repositories to surface dead code, duplicate logic, incomplete refactors, architectural drift, configuration inconsistencies, and other maintainability degradation.
+Repository Health Intelligence (working name: **tiramisu**) is an AI-assisted engineering platform that continuously scans software repositories to surface dead code, duplicate logic, incomplete refactors, architectural drift, configuration inconsistencies, and other maintainability degradation.
 
 It is positioned **above** linters, security scanners, and SAST tools — not a replacement for any of them. Its output is actionable cleanup tasks, not raw warnings.
 
@@ -57,8 +57,8 @@ Two-tier strategy: CLI runs with zero external dependencies; the server-mode API
 
 | Component | Choice | Rationale |
 |-----------|--------|-----------|
-| Relational | **SQLite** via SQLAlchemy | Zero setup; single file at `~/.tiramasu/tiramasu.db`; stores scan results, findings, health history |
-| Vector Index | **ChromaDB** (local persistent) | Pure Python; persists to `~/.tiramasu/vectors/`; no server process; used for duplicate logic / semantic similarity in Phase 2 |
+| Relational | **SQLite** via SQLAlchemy | Zero setup; single file at `~/.tiramisu/tiramisu.db`; stores scan results, findings, health history |
+| Vector Index | **ChromaDB** (local persistent) | Pure Python; persists to `~/.tiramisu/vectors/`; no server process; used for duplicate logic / semantic similarity in Phase 2 |
 
 **API / Server mode (Phase 3 — web dashboard)**
 
@@ -168,10 +168,10 @@ Repository (local path or git remote)
 ## 4. Repository Structure
 
 ```
-tiramasu/
+tiramisu/
 ├── packages/
 │   └── analysis-engine/          # Core Python package (pip-installable)
-│       ├── tiramasu/
+│       ├── tiramisu/
 │       │   ├── __init__.py
 │       │   ├── indexer/          # File indexer
 │       │   ├── ast_engine/       # Tree-sitter wrappers per language
@@ -210,7 +210,7 @@ tiramasu/
 │   │   └── Dockerfile
 │   │
 │   ├── cli/                      # CLI package
-│   │   ├── tiramasu_cli/
+│   │   ├── tiramisu_cli/
 │   │   │   ├── main.py           # Typer app (health scan, report, fix)
 │   │   │   ├── output.py         # Rich formatters
 │   │   │   └── config.py         # health.yml loader
@@ -338,22 +338,22 @@ GET    /api/v1/repos/{repo}/trend     # Trend data for dashboard
 ## 8. CLI Commands
 
 ```bash
-tiramasu scan                     # Full scan of current directory
-tiramasu scan --changed           # Only git-changed files + dependency impact
-tiramasu scan --pr <branch>       # PR scan (changed files vs base)
-tiramasu scan --full              # Explicit full scan
-tiramasu scan --config tiramasu.yml # Custom config
+tiramisu scan                     # Full scan of current directory
+tiramisu scan --changed           # Only git-changed files + dependency impact
+tiramisu scan --pr <branch>       # PR scan (changed files vs base)
+tiramisu scan --full              # Explicit full scan
+tiramisu scan --config tiramisu.yml # Custom config
 
-tiramasu report                   # View latest scan report (Rich terminal)
-tiramasu report --format json     # JSON output for CI
-tiramasu report --format html     # HTML report
+tiramisu report                   # View latest scan report (Rich terminal)
+tiramisu report --format json     # JSON output for CI
+tiramisu report --format html     # HTML report
 
-tiramasu fix                      # Interactive autofix (V2)
+tiramisu fix                      # Interactive autofix (V2)
 ```
 
 ---
 
-## 9. `tiramasu.yml` Configuration Schema
+## 9. `tiramisu.yml` Configuration Schema
 
 ```yaml
 version: 1
@@ -519,12 +519,12 @@ All decisions resolved on 2026-07-09. See header table.
 - [x] Engine selection via CLI flag (`-e`), `--quick` mode, sentinel constants
 - [x] Health score calculator (weighted per category)
 - [x] Recommendation engine
-- [x] SQLite storage (`~/.tiramasu/tiramasu.db`)
-- [x] CLI: `tiramasu scan`, `tiramasu report`, `tiramasu engines`
+- [x] SQLite storage (`~/.tiramisu/tiramisu.db`)
+- [x] CLI: `tiramisu scan`, `tiramisu report`, `tiramisu engines`
 - [x] FastAPI backend skeleton with `/api/v1/scans` endpoints
 - [x] Live scan validated against VectorShift-Assignment (100/100 clean repo)
 - [ ] Git history analyzer (GitPython)
-- [ ] `tiramasu scan --changed` incremental mode
+- [ ] `tiramisu scan --changed` incremental mode
 - [ ] Pytest unit tests for each module
 
 ### Phase 2
@@ -532,7 +532,7 @@ All decisions resolved on 2026-07-09. See header table.
 - [ ] ChromaDB local vector store
 - [ ] LiteLLM / GPT-4o-mini reasoning layer
 - [ ] Refactor completion, arch drift, config, doc, dependency, test, naming detectors
-- [ ] `tiramasu scan --pr` PR mode
+- [ ] `tiramisu scan --pr` PR mode
 
 ### Phase 3
 - [ ] Next.js dashboard
@@ -542,7 +542,7 @@ All decisions resolved on 2026-07-09. See header table.
 ### Documentation (end of project)
 - [ ] Root `README.md` — product overview, install, quickstart
 - [ ] `docs/engines/` — one `.md` per engine: what it detects, how it works, example output, config options
-- [ ] User guide: CLI reference, `tiramasu.yml` config schema, CI/CD integration, AI tool integration
+- [ ] User guide: CLI reference, `tiramisu.yml` config schema, CI/CD integration, AI tool integration
 
 ---
 

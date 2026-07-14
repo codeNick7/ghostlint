@@ -42,5 +42,5 @@ TEST HEALTH  test calls 'validate_v1_schema' not found in codebase      tests/te
 ## Running This Engine
 
 ```bash
-tiramasu scan -e test_health
+tiramisu scan -e test_health
 ```

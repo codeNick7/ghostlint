@@ -32,21 +32,21 @@ NAMING  Exact duplicate: 'parse_config' defined in 3 files                  src/
 
 ## Why This Matters
 
-Near-duplicate class names often indicate that a codebase has accumulated multiple representations of the same concept — a `UserModel` that maps to DB rows, a `UserSchema` for validation, a `UserDTO` for API responses, and a `UserEntity` for domain logic. While these may be intentional layered representations, they can also be the result of different developers solving the same problem independently. Tiramasu surfaces them so the team can decide consciously whether each is needed.
+Near-duplicate class names often indicate that a codebase has accumulated multiple representations of the same concept — a `UserModel` that maps to DB rows, a `UserSchema` for validation, a `UserDTO` for API responses, and a `UserEntity` for domain logic. While these may be intentional layered representations, they can also be the result of different developers solving the same problem independently. Tiramisu surfaces them so the team can decide consciously whether each is needed.
 
 ## Tuning
 
 Near-duplicate detection at the default 0.7 threshold can be noisy on codebases with large model layers. Raise `--min-confidence` to filter marginal pairs:
 
 ```bash
-tiramasu scan -e naming --min-confidence 0.75
+tiramisu scan -e naming --min-confidence 0.75
 ```
 
 ## Running This Engine
 
 ```bash
-tiramasu scan -e naming
-tiramasu scan -e naming --min-confidence 0.75
+tiramisu scan -e naming
+tiramisu scan -e naming --min-confidence 0.75
 ```
 
 Note: This engine is marked **slow** because it computes pairwise similarity across all class names. On repos with hundreds of model classes, this can take several seconds.
