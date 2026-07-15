@@ -59,6 +59,13 @@ _SKIP_CALLS: frozenset[str] = frozenset({
     "__dirname", "__filename", "encodeURIComponent", "decodeURIComponent",
     "encodeURI", "decodeURI", "process", "global", "globalThis", "Buffer",
     "exports", "module",
+    # JS number/type globals (referenced as bare identifiers in type coercion, guards)
+    "parseFloat", "parseInt", "isNaN", "isFinite", "NaN", "Infinity",
+    "undefined", "null",
+    # Python dynamic import — bare call in test utilities / plugin loaders
+    "__import__", "__builtins__",
+    # Node.js `path` module — often aliased as bare `path` after `import path from 'path'`
+    "path",
     "join", "split", "slice", "splice", "push", "pop", "shift", "unshift",
     "indexOf", "findIndex", "find", "includes", "from", "of", "entries",
     "keys", "values", "assign", "freeze", "create", "keys",

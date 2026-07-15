@@ -8,16 +8,23 @@ from ghostlint_engine.models.findings import (
     DetectionCategory, Evidence, EffortLevel, Finding, RiskLevel,
 )
 
-# Layer classification by directory name patterns
-# Lower number = higher layer (closer to user)
+# Layer classification by directory name patterns.
+# Lower number = higher layer (closer to user); violations are detected when a
+# lower-numbered layer imports from a lower-numbered destination (dst_layer < src_layer).
+# Layer 5 (Foundation) is special: it sits BELOW everything, so any other layer
+# importing from it is always legal. Only layer 5 code importing from layers 1-4
+# would be flagged (e.g. core/settings importing from services is wrong).
 _LAYER_MAP: dict[str, int] = {
     "routes": 1, "routers": 1, "api": 1, "views": 1, "controllers": 1,
     "handlers": 1, "endpoints": 1,
-    "services": 2, "business": 2, "domain": 2, "core": 2, "use_cases": 2,
+    "services": 2, "business": 2, "domain": 2, "use_cases": 2,
     "models": 3, "schemas": 3, "entities": 3, "db": 3, "repositories": 3,
     "dao": 3, "database": 3,
     "utils": 4, "helpers": 4, "lib": 4, "common": 4, "shared": 4,
     "tools": 4, "support": 4,
+    # Foundation/Infrastructure — cross-cutting concerns (config, auth, logging)
+    # that every other layer is legitimately allowed to import from.
+    "core": 5, "config": 5, "settings": 5, "infrastructure": 5, "foundation": 5,
 }
 
 _LAYER_NAMES: dict[int, str] = {
@@ -25,7 +32,29 @@ _LAYER_NAMES: dict[int, str] = {
     2: "Services/Business",
     3: "Data/Models",
     4: "Utils/Helpers",
+    5: "Foundation/Infrastructure",
 }
+
+# Path segments or filename prefixes that mark standalone scripts not part of
+# the app's import graph. Seed scripts, one-off init scripts, and migration
+# runners legitimately import from any layer (they bootstrap data using models,
+# settings, and services together) and must not trigger layer violations.
+_ARCH_EXEMPT_PATH_SEGMENTS: frozenset[str] = frozenset({
+    "scripts", "seeds", "fixtures", "seed_data",
+})
+_ARCH_EXEMPT_STEM_PREFIXES: tuple[str, ...] = (
+    "seed_", "migrate_", "run_", "init_db", "populate_", "bootstrap_",
+)
+
+
+def _is_arch_exempt(rel_path: str) -> bool:
+    """Return True for standalone scripts that intentionally cross layer boundaries."""
+    norm = rel_path.replace("\\", "/")
+    parts = PurePosixPath(norm).parts
+    if any(p in _ARCH_EXEMPT_PATH_SEGMENTS for p in parts):
+        return True
+    stem = PurePosixPath(norm).stem.lower()
+    return any(stem.startswith(pfx) for pfx in _ARCH_EXEMPT_STEM_PREFIXES)
 
 
 def _classify_file(rel_path: str) -> int | None:
@@ -89,6 +118,8 @@ class ArchDriftDetector(BaseDetector):
         # Layer violation detection
         reported_violations: set[tuple] = set()
         for file_path, imported_paths in import_graph.items():
+            if _is_arch_exempt(file_path):
+                continue
             src_layer = _classify_file(file_path)
             if src_layer is None:
                 continue

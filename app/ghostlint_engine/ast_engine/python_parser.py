@@ -154,8 +154,22 @@ def _walk_references(node: Node, source: bytes, file_path: str, refs: list[Symbo
                         line=arg.start_point[0] + 1,
                         kind="call",
                     ))
+                elif arg.type == "attribute":
+                    # Attribute passed as callback argument — e.g. mpl_connect('event',
+                    # self._on_click) or scheduler.add_job(self._run_task). The method
+                    # is referenced by value, not called at this site, so it would
+                    # otherwise appear unreferenced to the dead-code detector.
+                    attr_node = arg.child_by_field_name("attribute")
+                    if attr_node:
+                        refs.append(SymbolRef(
+                            name=_node_text(attr_node, source),
+                            file_path=file_path,
+                            line=arg.start_point[0] + 1,
+                            kind="call",
+                        ))
                 elif arg.type == "keyword_argument":
                     # keyword_argument: name=value — capture the value if it's an identifier
+                    # or an attribute (e.g. target=self._worker, command=self._on_click)
                     val = arg.child_by_field_name("value")
                     if val and val.type == "identifier":
                         refs.append(SymbolRef(
@@ -164,6 +178,15 @@ def _walk_references(node: Node, source: bytes, file_path: str, refs: list[Symbo
                             line=val.start_point[0] + 1,
                             kind="call",
                         ))
+                    elif val and val.type == "attribute":
+                        attr_node = val.child_by_field_name("attribute")
+                        if attr_node:
+                            refs.append(SymbolRef(
+                                name=_node_text(attr_node, source),
+                                file_path=file_path,
+                                line=val.start_point[0] + 1,
+                                kind="call",
+                            ))
 
     elif node.type == "import_from_statement":
         for child in node.children:

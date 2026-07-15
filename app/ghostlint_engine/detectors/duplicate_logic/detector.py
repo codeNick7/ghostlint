@@ -28,6 +28,11 @@ _CONVENTION_NAMES: frozenset[str] = frozenset({
     # migration file and are called by the Alembic CLI, not imported. Each migration
     # file must define both; they are identical in structure but intentionally isolated.
     "upgrade", "downgrade",
+    # Next.js file-based routing conventions — every route segment can have its own
+    # loading.tsx, error.tsx, not-found.tsx, and template.tsx. The framework
+    # auto-discovers these files and calls their default export; each directory MUST
+    # define them independently. Flagging them as duplicates is pure noise.
+    "Loading", "NotFound", "Template", "Default",
 })
 
 # Path segments that identify database migration version files. Functions in these
@@ -239,6 +244,20 @@ def _are_mirror_twins(path_a: str, path_b: str, mirror_roots: list[tuple[str, st
     return False
 
 
+def _canonical_path(path: str, mirror_roots: list[tuple[str, str]]) -> str:
+    """Normalize a path by mapping any mirror-B root prefix to its mirror-A counterpart.
+
+    Without this, the cross-name pair key for ``(web/a.ts:func, web/b.ts:func)``
+    and its mirror ``(web-new/a.ts:func, web-new/b.ts:func)`` differ, causing the
+    same semantic pair to be reported once per mirror root.
+    """
+    norm = path.replace("\\", "/")
+    for root_a, root_b in mirror_roots:
+        if norm.startswith(root_b + "/"):
+            return root_a + "/" + norm[len(root_b) + 1:]
+    return norm
+
+
 class DuplicateLogicDetector(BaseDetector):
     category = DetectionCategory.DUPLICATE_LOGIC
 
@@ -438,9 +457,15 @@ class DuplicateLogicDetector(BaseDetector):
                                 continue
                             if _are_mirror_twins(sym_a.file_path, sym_b.file_path, mirror_roots):
                                 continue
+                            # Canonicalize paths so the same semantic pair (e.g.
+                            # getPreferences/fetchPreferences in web/ and in web-new/)
+                            # produces an identical key and gets deduplicated rather than
+                            # reported once per mirror root variant.
+                            canon_a = _canonical_path(sym_a.file_path, mirror_roots)
+                            canon_b = _canonical_path(sym_b.file_path, mirror_roots)
                             pair_key = frozenset([
-                                f"{sym_a.file_path}:{sym_a.line_start}",
-                                f"{sym_b.file_path}:{sym_b.line_start}",
+                                f"{canon_a}:{sym_a.name}",
+                                f"{canon_b}:{sym_b.name}",
                             ])
                             if pair_key in reported_pairs:
                                 continue
