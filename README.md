@@ -263,7 +263,7 @@ The `frontend/` directory contains a Next.js 14 dashboard that connects to the g
 
 ```bash
 # Start the API server
-cd backend && uvicorn app.main:app --reload
+cd app && uvicorn app.main:app --reload
 
 # Start the dashboard
 cd frontend && npm install && npm run dev
@@ -276,7 +276,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## API Server
 
 ```bash
-cd backend && uvicorn app.main:app --reload --port 8000
+cd app && uvicorn app.main:app --reload --port 8000
 ```
 
 The API key is auto-generated on first run and stored at `~/.ghostlint/api_key`. Pass it as the `X-API-Key` header.
@@ -348,7 +348,7 @@ uv sync
 ## Architecture
 
 ```
-backend/
+app/
   ghostlint_engine/          # Core analysis library
     ast_engine/             # Tree-sitter AST parsers (Python + JS/TS)
     graph/                  # NetworkX symbol graph + analysis context

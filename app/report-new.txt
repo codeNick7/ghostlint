@@ -1,0 +1,1004 @@
+
+
+╭───────────── ghostlint ──────────────╮
+│ 49.6 / 100  Repository Health Score │
+╰─ 1234 files · 4587 symbols · 18.0s ─╯
+
+                                                          
+  Category                          Score   Status        
+ ──────────────────────────────────────────────────────── 
+  Dead Code                           0.0   ✗ Issues      
+  Duplicate Logic                     0.0   ✗ Issues      
+  Refactor Completion                76.6   ⚠ Review      
+  Architectural Drift                60.8   ✗ Issues      
+  Dependency Health                 100.0   ✓ Healthy     
+  Documentation                      90.4   ✓ Healthy     
+  Test Health                       100.0   ✓ Healthy     
+  Config Consistency                 94.0   ✓ Healthy     
+                                                          
+Findings  (351 total)
+
+╭┬─────────────────────────────────────┬───────────────────────────────┬─┬─┬───╮
+││ Title                               │ File                          │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/ingestion/sa… │ │ │ … │
+││ `_download_and_parse_himawari_bt`   │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/ingestion/sa… │ │ │ … │
+││ `_normalize_cloud_value`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/dooradarshika/ai… │ │ │ … │
+││ `_limiting_magnitude`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/star_fi… │ │ │ … │
+││ `_generate_fallback_stars`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/usage_s… │ │ │ … │
+││ `_build_usage_response`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `_num`             │ scripts/enrich_compatibility… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/astronomy_kno… │ │ │ … │
+││ `astronomy_knowledge_assistant.py`  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/enhanced_rout… │ │ │ … │
+││ `enhanced_router_assistant.py`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/fast_router_a… │ │ │ … │
+││ `fast_router_assistant.py`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `fast_shopping_assistant.py`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/product_filte… │ │ │ … │
+││ `product_filtering.py`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/router_assist… │ │ │ … │
+││ `router_assistant.py`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/ai/shopping_assi… │ │ │ … │
+││ `shopping_assistant.py`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `context_store.py`   │ backend/app/ai_utils/context… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `thread_manager.py`  │ backend/app/ai_utils/thread_… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `object_repo.py`     │ backend/app/repositories/obj… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `user_repo.py`       │ backend/app/repositories/use… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `chart_constants.py` │ backend/app/services/chart_c… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/services/local_u… │ │ │ … │
+││ `local_user_service.py`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/services/otp_rat… │ │ │ … │
+││ `otp_rate_limiter.py`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ backend/app/services/razorpa… │ │ │ … │
+││ `razorpay_service.py`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `vector_search.py`   │ backend/app/services/vector_… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `email_validator.py` │ backend/app/utils/email_vali… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `catalog_loader.py`  │ backend/data/catalog_loader.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `AIChatPreview.tsx`  │ web-new/components/AIChatPre… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `FeatureTiles.tsx`   │ web-new/components/FeatureTi… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `Hero.tsx`           │ web-new/components/Hero.tsx   │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `OfflineStatus.tsx`  │ web-new/components/OfflineSt… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/ai-assist… │ │ │ … │
+││ `chat-messages-old.tsx`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `carousel.tsx`       │ web-new/components/carousel.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `actions.mobile.ts`  │ web-new/components/cart/acti… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `cart-modal.tsx`     │ web-new/components/cart/cart… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/condition… │ │ │ … │
+││ `conditional-ai-assistant.tsx`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `kit-skeleton.tsx`   │ web-new/components/dooradars… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `three-items.tsx`    │ web-new/components/grid/thre… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `hero-banner.tsx`    │ web-new/components/hero-bann… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `image-tiles.tsx`    │ web-new/components/image-til… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `footer-menu.tsx`    │ web-new/components/layout/fo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `footer.tsx`         │ web-new/components/layout/fo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `mobile-hidden.tsx`  │ web-new/components/layout/na… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `mobile-menu.tsx`    │ web-new/components/layout/na… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `StarAtlas.tsx`      │ web-new/components/planner/S… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/planner/T… │ │ │ … │
+││ `TimelineVisualization.tsx`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/planner/V… │ │ │ … │
+││ `VisibilityGraph.tsx`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/product-h… │ │ │ … │
+││ `product-highlights.tsx`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `sale-section.tsx`   │ web-new/components/sale-sect… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `ticker-tape.tsx`    │ web-new/components/ticker-ta… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/components/weather/E… │ │ │ … │
+││ `EnhancedWeatherPanel.tsx`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `welcome-toast.tsx`  │ web-new/components/welcome-t… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/lib/hooks/usePlanner… │ │ │ … │
+││ `usePlannerAccess.ts`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/lib/hooks/useWeather… │ │ │ … │
+││ `useWeatherWithCache.ts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `ip-geolocation.ts`  │ web-new/lib/ip-geolocation.ts │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web-new/lib/services/offline… │ │ │ … │
+││ `offlineDataService.ts`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `nativeFetch.ts`     │ web-new/lib/utils/nativeFetc… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `AIChatPreview.tsx`  │ web/components/AIChatPreview… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `FeatureTiles.tsx`   │ web/components/FeatureTiles.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `Hero.tsx`           │ web/components/Hero.tsx       │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `OfflineStatus.tsx`  │ web/components/OfflineStatus… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/ai-assistant/… │ │ │ … │
+││ `chat-messages-old.tsx`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `carousel.tsx`       │ web/components/carousel.tsx   │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `actions.mobile.ts`  │ web/components/cart/actions.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `cart-modal.tsx`     │ web/components/cart/cart-mod… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/conditional-a… │ │ │ … │
+││ `conditional-ai-assistant.tsx`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `kit-skeleton.tsx`   │ web/components/dooradarshika… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `three-items.tsx`    │ web/components/grid/three-it… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `hero-banner.tsx`    │ web/components/hero-banner.t… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `image-tiles.tsx`    │ web/components/image-tiles.t… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `footer-menu.tsx`    │ web/components/layout/footer… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `mobile-hidden.tsx`  │ web/components/layout/navbar… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `mobile-menu.tsx`    │ web/components/layout/navbar… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `StarAtlas.tsx`      │ web/components/planner/StarA… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/planner/Timel… │ │ │ … │
+││ `TimelineVisualization.tsx`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/planner/Visib… │ │ │ … │
+││ `VisibilityGraph.tsx`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/product-highl… │ │ │ … │
+││ `product-highlights.tsx`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `sale-section.tsx`   │ web/components/sale-section.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `ticker-tape.tsx`    │ web/components/ticker-tape.t… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/components/weather/Enhan… │ │ │ … │
+││ `EnhancedWeatherPanel.tsx`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `welcome-toast.tsx`  │ web/components/welcome-toast… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/lib/hooks/usePlannerAcce… │ │ │ … │
+││ `usePlannerAccess.ts`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/lib/hooks/useWeatherWith… │ │ │ … │
+││ `useWeatherWithCache.ts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `ip-geolocation.ts`  │ web/lib/ip-geolocation.ts     │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module:                      │ web/lib/services/offlineData… │ │ │ … │
+││ `offlineDataService.ts`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused module: `nativeFetch.ts`     │ web/lib/utils/nativeFetch.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/ai/cache.py       │ │ │ … │
+││ `cache_key_for_chart`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/ai/cache.py       │ │ │ … │
+││ `cache_key_for_ephemeris`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/ai/modern_astron… │ │ │ … │
+││ `load_astronomy_assistant_id`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/ai/modern_astron… │ │ │ … │
+││ `load_astronomy_vector_store_id`    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/ai/planner_assis… │ │ │ … │
+││ `lookup_object_ids`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `log_warning`      │ backend/app/ai_utils/logger.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `get_nearest_precomputed`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `clear_all`        │ backend/app/aie/cache.py      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `clear_derived`    │ backend/app/aie/cache.py      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `clear_satellite`  │ backend/app/aie/cache.py      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `clear_atmosphere_complete`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `get_atmosphere_spatial`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `set_atmosphere_spatial`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `get_hourly_forecast_spatial`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `set_hourly_forecast_spatial`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/cache.py      │ │ │ … │
+││ `clear_spatial_cache`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/ingestion/fa… │ │ │ … │
+││ `should_use_openweathermap_fallbac… │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/aie/ingestion/sa… │ │ │ … │
+││ `fetch_himawari_data`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/core/auth.py      │ │ │ … │
+││ `require_permission`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `require_role`     │ backend/app/core/auth.py      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/core/auth.py      │ │ │ … │
+││ `require_authentication`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/core/auth.py      │ │ │ … │
+││ `permission_dependency`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `role_dependency`  │ backend/app/core/auth.py      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `rate_limit`       │ backend/app/core/rate_limite… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `has_goto_builtin` │ backend/app/dooradarshika/ai… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/dooradarshika/ai… │ │ │ … │
+││ `has_motorized_tracking`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_write_entry`       │ backend/app/dooradarshika/au… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/dooradarshika/tr… │ │ │ … │
+││ `map_enrichment_fields`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/cleanup_… │ │ │ … │
+││ `cleanup_contact_messages`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/cleanup_… │ │ │ … │
+││ `cleanup_auth_audit_logs`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/cleanup_… │ │ │ … │
+││ `cleanup_session_data`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/cleanup_… │ │ │ … │
+││ `cleanup_ai_conversations`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/cleanup_… │ │ │ … │
+││ `cleanup_subscription_audit_logs`   │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/scripts/preproce… │ │ │ … │
+││ `parse_fixedwidth_line`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/algol_m… │ │ │ … │
+││ `get_algol_minima_for_dates`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/algol_m… │ │ │ … │
+││ `get_next_algol_minimum`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `get_usage`        │ backend/app/services/anonymo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/cosmos_… │ │ │ … │
+││ `create_all_format_layouts`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/cron_jo… │ │ │ … │
+││ `cleanup_old_sessions_job`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/cron_jo… │ │ │ … │
+││ `cleanup_expired_contexts_job`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/cron_jo… │ │ │ … │
+││ `send_contact_digest_job`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/cron_jo… │ │ │ … │
+││ `cleanup_expired_otps_job`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `warm_cache_job`   │ backend/app/services/cron_jo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `stop_cron_jobs`   │ backend/app/services/cron_jo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_parse_datetime`    │ backend/app/services/email_s… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/externa… │ │ │ … │
+││ `check_external_api_rate_limit`     │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/externa… │ │ │ … │
+││ `wait_for_external_api`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `gaussian_2d`      │ backend/app/services/photome… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_on_click`          │ backend/app/services/photome… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_on_key`            │ backend/app/services/photome… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/photome… │ │ │ … │
+││ `query_stars_around_field`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/photome… │ │ │ … │
+││ `identify_stars_in_field`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `get_field_center` │ backend/app/services/photome… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/qr_code… │ │ │ … │
+││ `generate_qr_for_city`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/qr_code… │ │ │ … │
+││ `generate_qr_from_card_data`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ backend/app/services/star_fi… │ │ │ … │
+││ `get_star_field_simple`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_write_text`        │ backend/scripts/duradarshaka… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused method: `_normalize_url`     │ backend/scripts/duradarshaka… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `get_supabase_db`  │ backend/scripts/migrate_to_s… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `PlannerStrip`     │ web-new/components/PlannerSt… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ProductCapsules`  │ web-new/components/ProductCa… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `FilterRingIcon`   │ web-new/components/dooradars… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `MountIcon`        │ web-new/components/dooradars… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `EyepieceIcon`     │ web-new/components/dooradars… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `GridItem`         │ web-new/components/grid/inde… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `TelescopeIcon`    │ web-new/components/mobile/Mo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ShopIcon`         │ web-new/components/mobile/Mo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ProfileIcon`      │ web-new/components/mobile/Mo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `AppLogoIcon`      │ web-new/components/mobile/Mo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `MobileHeader`     │ web-new/components/mobile/Mo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/components/notificat… │ │ │ … │
+││ `NotificationBanner`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/components/notificat… │ │ │ … │
+││ `NotificationOptIn`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `OfflineIndicator` │ web-new/components/offline/O… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `EyeIcon`          │ web-new/components/planner/O… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `BinocularsIcon`   │ web-new/components/planner/O… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `TelescopeIcon`    │ web-new/components/planner/O… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/components/planner/O… │ │ │ … │
+││ `LargeTelescopeIcon`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/components/weather/W… │ │ │ … │
+││ `WeatherCacheIndicator`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/mar… │ │ │ … │
+││ `formatUserMessage`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/mar… │ │ │ … │
+││ `cleanAllImageUrls`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/mar… │ │ │ … │
+││ `addLoadingIconsForProducts`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/mar… │ │ │ … │
+││ `convertImageUrlsToImages`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/mar… │ │ │ … │
+││ `cleanRemainingImageUrls`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `extractDetailedProductDescription` │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `findNearestProductByPosition`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `parseProgressiveProducts`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `parseStreamingProducts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `hasStreamingProducts`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `hasProgressiveProducts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `convertProgressiveToFinal`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/ai-assistant/pro… │ │ │ … │
+││ `hasJsonProductBlock`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `buildQueryString` │ web-new/lib/api-config.ts     │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/astronomy/useOff… │ │ │ … │
+││ `useOfflineAstronomy`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getWeather`       │ web-new/lib/backend-api.ts    │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getBestObjects`   │ web-new/lib/backend-api.ts    │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getMoonPhaseName` │ web-new/lib/backend-api.ts    │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/backend-api.ts    │ │ │ … │
+││ `getObjectDifficulty`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/backend-api.ts    │ │ │ … │
+││ `getVisibilityRating`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/backend-api.ts    │ │ │ … │
+││ `getSatellitePasses`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/hooks/useKeyboar… │ │ │ … │
+││ `useKeyboardAwareStyle`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `useActiveCities`  │ web-new/lib/hooks/useNightMo… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/planner.ts        │ │ │ … │
+││ `getPlannerSnapshot`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `parseLocation`    │ web-new/lib/planner.ts        │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/services/cache/i… │ │ │ … │
+││ `initializeOfflineCaches`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `storefrontFetch`  │ web-new/lib/shopify-client.ts │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `searchProducts`   │ web-new/lib/shopify-client.ts │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/shopify-helpers.… │ │ │ … │
+││ `getCapsuleProducts`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/shopify-helpers.… │ │ │ … │
+││ `getFeaturedProducts`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `shopifyFetch`     │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `createCart`       │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `addToCart`        │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `removeFromCart`   │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `updateCart`       │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getMenu`          │ web-new/lib/shopify/index.ts  │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/storage/indexedD… │ │ │ … │
+││ `hydrateFromIndexedDB`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `initializeDevice` │ web-new/lib/utils/platform.ts │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web-new/lib/utils/serverReac… │ │ │ … │
+││ `checkServerWithLoading`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `PlannerStrip`     │ web/components/PlannerStrip.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ProductCapsules`  │ web/components/ProductCapsul… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `FilterRingIcon`   │ web/components/dooradarshika… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `MountIcon`        │ web/components/dooradarshika… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `EyepieceIcon`     │ web/components/dooradarshika… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `GridItem`         │ web/components/grid/index.tsx │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `TelescopeIcon`    │ web/components/mobile/Mobile… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ShopIcon`         │ web/components/mobile/Mobile… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `ProfileIcon`      │ web/components/mobile/Mobile… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `AppLogoIcon`      │ web/components/mobile/Mobile… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `MobileHeader`     │ web/components/mobile/Mobile… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/components/notifications… │ │ │ … │
+││ `NotificationBanner`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/components/notifications… │ │ │ … │
+││ `NotificationOptIn`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `OfflineIndicator` │ web/components/offline/Offli… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `EyeIcon`          │ web/components/planner/Obser… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `BinocularsIcon`   │ web/components/planner/Obser… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `TelescopeIcon`    │ web/components/planner/Obser… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/components/planner/Obser… │ │ │ … │
+││ `LargeTelescopeIcon`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/components/weather/Weath… │ │ │ … │
+││ `WeatherCacheIndicator`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/markdow… │ │ │ … │
+││ `formatUserMessage`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/markdow… │ │ │ … │
+││ `cleanAllImageUrls`                 │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/markdow… │ │ │ … │
+││ `addLoadingIconsForProducts`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/markdow… │ │ │ … │
+││ `convertImageUrlsToImages`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/markdow… │ │ │ … │
+││ `cleanRemainingImageUrls`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `extractDetailedProductDescription` │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `findNearestProductByPosition`      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `parseProgressiveProducts`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `parseStreamingProducts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `hasStreamingProducts`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `hasProgressiveProducts`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `convertProgressiveToFinal`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/ai-assistant/product… │ │ │ … │
+││ `hasJsonProductBlock`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `buildQueryString` │ web/lib/api-config.ts         │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/astronomy/useOffline… │ │ │ … │
+││ `useOfflineAstronomy`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getWeather`       │ web/lib/backend-api.ts        │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getBestObjects`   │ web/lib/backend-api.ts        │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getMoonPhaseName` │ web/lib/backend-api.ts        │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/backend-api.ts        │ │ │ … │
+││ `getObjectDifficulty`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/backend-api.ts        │ │ │ … │
+││ `getVisibilityRating`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/backend-api.ts        │ │ │ … │
+││ `getSatellitePasses`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/hooks/useKeyboard.ts  │ │ │ … │
+││ `useKeyboardAwareStyle`             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `useActiveCities`  │ web/lib/hooks/useNightMonito… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/planner.ts            │ │ │ … │
+││ `getPlannerSnapshot`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `parseLocation`    │ web/lib/planner.ts            │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/services/cache/index… │ │ │ … │
+││ `initializeOfflineCaches`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `storefrontFetch`  │ web/lib/shopify-client.ts     │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `searchProducts`   │ web/lib/shopify-client.ts     │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/shopify-helpers.ts    │ │ │ … │
+││ `getCapsuleProducts`                │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/shopify-helpers.ts    │ │ │ … │
+││ `getFeaturedProducts`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `shopifyFetch`     │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `createCart`       │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `addToCart`        │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `removeFromCart`   │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `updateCart`       │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `getMenu`          │ web/lib/shopify/index.ts      │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/storage/indexedDBSto… │ │ │ … │
+││ `hydrateFromIndexedDB`              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function: `initializeDevice` │ web/lib/utils/platform.ts     │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused function:                    │ web/lib/utils/serverReachabi… │ │ │ … │
+││ `checkServerWithLoading`            │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused arrow_function: `getUserIP`  │ web-new/lib/ai-assistant/con… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused arrow_function:              │ web-new/lib/store/sync.ts     │ │ │ … │
+││ `selectHasError`                    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused arrow_function: `getUserIP`  │ web/lib/ai-assistant/config.… │ │ │ … │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Unused arrow_function:              │ web/lib/store/sync.ts         │ │ │ … │
+││ `selectHasError`                    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `normalize_db_url` │ backend/alembic/env.py        │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `load_product_catalog` defined      │                               │ │ │   │
+││ identically in 3 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/astronomy_kno… │ │ │ … │
+││ `get_astronomy_assistant_id` and    │                               │ │ │   │
+││ `_get_router_assistant_id`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_state` defined   │ backend/app/ai/fast_shopping… │ │ │ … │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `load_shopping_assistant_id`        │                               │ │ │   │
+││ defined identically in 3 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `load_product_vector_store_id`      │                               │ │ │   │
+││ defined identically in 3 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `load_shopping_assistant_id` and    │                               │ │ │   │
+││ `load_astronomy_assistant_id`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/modern_shoppi… │ │ │ … │
+││ `load_shopping_assistant_id` and    │                               │ │ │   │
+││ `load_astronomy_assistant_id`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/shopping_assi… │ │ │ … │
+││ `load_shopping_assistant_id` and    │                               │ │ │   │
+││ `load_astronomy_assistant_id`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/fast_shopping… │ │ │ … │
+││ `load_product_vector_store_id` and  │                               │ │ │   │
+││ `load_astronomy_vector_store_id`    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/modern_shoppi… │ │ │ … │
+││ `load_product_vector_store_id` and  │                               │ │ │   │
+││ `load_astronomy_vector_store_id`    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/shopping_assi… │ │ │ … │
+││ `load_product_vector_store_id` and  │                               │ │ │   │
+││ `load_astronomy_vector_store_id`    │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai/order_assista… │ │ │ … │
+││ `handle_order_intent_stream` and    │                               │ │ │   │
+││ `handle_fix_intent_stream`          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/ai_utils/persist… │ │ │ … │
+││ `cleanup_old_threads` and           │                               │ │ │   │
+││ `cleanup_user_threads_sync`         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_clamp` defined   │ backend/app/aie/derived/conf… │ │ │ … │
+││ identically in 3 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_haversine_km`    │ backend/app/aie/ingestion/sa… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_get_db` /        │ backend/app/api/routes_ai_al… │ │ │ … │
+││ `get_db` defined identically in 6   │                               │ │ │   │
+││ files                               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_get_db` defined  │ backend/app/api/routes_order… │ │ │ … │
+││ identically in 5 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_get_db` defined  │ backend/app/services/local_a… │ │ │ … │
+││ identically in 3 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/api/routes_objec… │ │ │ … │
+││ `_resolve_image_url` duplicated     │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_current_user` │ backend/app/api/routes_order… │ │ │ … │
+││ defined identically in 5 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_now` duplicated  │ backend/app/dooradarshika/au… │ │ │ … │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/dooradarshika/se… │ │ │ … │
+││ `get_session_store` and             │                               │ │ │   │
+││ `get_knowledge_store`               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_by_id` and    │ backend/app/repositories/bas… │ │ │ … │
+││ `get_by_email`                      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_by_id` and    │ backend/app/repositories/bas… │ │ │ … │
+││ `get_by_uuid`                       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `main` duplicated  │ backend/app/scripts/fix_wron… │ │ │ … │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_direct_url`   │ backend/app/scripts/fix_wron… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `fix_object_image` │ backend/app/scripts/fix_wron… │ │ │ … │
+││ defined identically in 3 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/services/local_u… │ │ │ … │
+││ `get_or_create_user` duplicated     │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/services/local_u… │ │ │ … │
+││ `get_database_user_id_from_session` │                               │ │ │   │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/services/local_u… │ │ │ … │
+││ `get_latest_session` duplicated     │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_context`      │ backend/app/services/local_u… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `update_context`   │ backend/app/services/local_u… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/services/local_u… │ │ │ … │
+││ `get_or_create_thread` duplicated   │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `save_message`     │ backend/app/services/local_u… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_load_eph`        │ backend/app/services/planets… │ │ │ … │
+││ defined identically in 5 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/app/services/planets… │ │ │ … │
+││ `_compute_night_bounds` /           │                               │ │ │   │
+││ `compute_night_bounds` duplicated   │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `_setup_logging` / │ backend/scripts/duradarshaka… │ │ │ … │
+││ `setup_logging` defined identically │                               │ │ │   │
+││ in 3 files                          │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/scripts/duradarshaka… │ │ │ … │
+││ `build_ssl_context` and             │                               │ │ │   │
+││ `_ssl_context`                      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/scripts/duradarshaka… │ │ │ … │
+││ `find_product_dirs` duplicated      │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/scripts/duradarshaka… │ │ │ … │
+││ `existing_asset_filenames`          │                               │ │ │   │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `get_image_files`  │ backend/scripts/duradarshaka… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/scripts/export_attri… │ │ │ … │
+││ `export_from_postgres` defined      │                               │ │ │   │
+││ identically in 3 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `load_env_file`    │ backend/scripts/export_attri… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ backend/scripts/fetch_wikime… │ │ │ … │
+││ `_enhance_search_query` duplicated  │                               │ │ │   │
+││ across files                        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `Disclaimer`       │ web-new/app/planner/disclaim… │ │ │ … │
+││ defined identically in 3 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `ensureReportsDir` │ templates/tests/e2e-test.tem… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `hasShopifyConfig` │ web-new/app/api/shopify/cart… │ │ │ … │
+││ defined identically in 6 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ web-new/app/api/shopify/prod… │ │ │ … │
+││ `missingConfigResponse` defined     │                               │ │ │   │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `HeroStatsStrip`   │ web-new/components/HeroPremi… │ │ │ … │
+││ duplicated across files             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `OfflineIndicator` │ web-new/components/OfflineSt… │ │ │ … │
+││ and `NavbarOfflineIndicator`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `OfflineIndicator` │ web-new/components/OfflineSt… │ │ │ … │
+││ and `NavbarOfflineIndicator`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `OfflineIndicator` │ web/components/OfflineStatus… │ │ │ … │
+││ and `NavbarOfflineIndicator`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `OfflineIndicator` │ web/components/OfflineStatus… │ │ │ … │
+││ and `NavbarOfflineIndicator`        │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `ChatMessages`     │ web-new/components/ai-assist… │ │ │ … │
+││ defined identically in 4 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `TypingDot`        │ web-new/components/ai-assist… │ │ │ … │
+││ defined identically in 6 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ web-new/components/cart/acti… │ │ │ … │
+││ `redirectToCheckout` defined        │                               │ │ │   │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic:                    │ web-new/components/cart/acti… │ │ │ … │
+││ `createCartAndSetCookie` defined    │                               │ │ │   │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `start` defined    │ web-new/lib/services/satelli… │ │ │ … │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `stop` defined     │ web-new/lib/services/satelli… │ │ │ … │
+││ identically in 4 files              │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate logic: `refreshOnce`      │ web-new/lib/services/satelli… │ │ │ … │
+││ defined identically in 4 files      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Coexisting old/new:                 │ backend/app/api/routes_admin… │ │ │ … │
+││ `get_ai_conversations` and          │                               │ │ │   │
+││ `get_ai_conversations_v2`           │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Possible duplicates:                │ backend/app/ai/astronomy_kno… │ │ │ … │
+││ `get_astronomy_assistant_id` and    │                               │ │ │   │
+││ `load_astronomy_assistant_id`       │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Possible duplicates:                │ web-new/lib/services/notific… │ │ │ … │
+││ `getPreferences` and                │                               │ │ │   │
+││ `fetchPreferences`                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Possible duplicates:                │ web-new/lib/services/notific… │ │ │ … │
+││ `getPreferences` and                │                               │ │ │   │
+││ `fetchPreferences`                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Possible duplicates:                │ web/lib/services/notificatio… │ │ │ … │
+││ `getPreferences` and                │                               │ │ │   │
+││ `fetchPreferences`                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Possible duplicates:                │ web/lib/services/notificatio… │ │ │ … │
+││ `getPreferences` and                │                               │ │ │   │
+││ `fetchPreferences`                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Data/Models        │ backend/app/db/seed_catalog.… │ │ │ … │
+││ imports from Services/Business      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Data/Models        │ backend/app/db/seed_indian_c… │ │ │ … │
+││ imports from Services/Business      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Data/Models        │ backend/app/db/session.py     │ │ │ … │
+││ imports from Services/Business      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Data/Models        │ backend/app/schemas/subscrip… │ │ │ … │
+││ imports from Services/Business      │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Services/Business  │ backend/app/services/cron_jo… │ │ │ … │
+││ imports from API/Routes             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Services/Business  │ backend/app/services/playwri… │ │ │ … │
+││ imports from API/Routes             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Layer violation: Services/Business  │ backend/app/services/tonight… │ │ │ … │
+││ imports from API/Routes             │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Secret key                          │ web/.env.local                │ │ │ … │
+││ `SHOPIFY_STOREFRONT_ACCESS_TOKEN`   │                               │ │ │   │
+││ missing from example config         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Secret key                          │ web-new/.env.local            │ │ │ … │
+││ `SHOPIFY_STOREFRONT_ACCESS_TOKEN`   │                               │ │ │   │
+││ missing from example config         │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ backend/app/api/routes_cosmo… │ │ │ … │
+││ `backend/app/api/routes_cosmos_ton… │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ backend/app/api/routes_plann… │ │ │ … │
+││ `backend/app/api/routes_planner_ai… │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ backend/app/services/notific… │ │ │ … │
+││ `backend/app/services/notification… │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ backend/app/services/product… │ │ │ … │
+││ `backend/app/services/product_rule… │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ web-new/app/planner/logs/pag… │ │ │ … │
+││ `web-new/app/planner/logs/page.tsx` │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ web-new/app/planner/logs/pag… │ │ │ … │
+││ `web-new/app/planner/logs/page.tsx` │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ web/app/planner/logs/page.tsx │ │ │ … │
+││ `web/app/planner/logs/page.tsx`     │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Stale TODO comment in               │ web/app/planner/logs/page.tsx │ │ │ … │
+││ `web/app/planner/logs/page.tsx`     │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate class name: `OTPRequest`  │ backend/app/api/routes_ai_as… │ │ │ … │
+││ defined in 2 files                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate class name: `PlanType`    │ backend/app/schemas/subscrip… │ │ │ … │
+││ defined in 2 files                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate class name:               │ backend/app/schemas/subscrip… │ │ │ … │
+││ `SubscriptionStatusResponse`        │                               │ │ │   │
+││ defined in 2 files                  │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate class name:               │ backend/app/schemas/subscrip… │ │ │ … │
+││ `UsageLimitResponse` defined in 2   │                               │ │ │   │
+││ files                               │                               │ │ │   │
+├┼─────────────────────────────────────┼───────────────────────────────┼─┼─┼───┤
+││ Duplicate class name:               │ backend/app/schemas/subscrip… │ │ │ … │
+││ `UsageCheckResponse` defined in 2   │                               │ │ │   │
+││ files                               │                               │ │ │   │
+╰┴─────────────────────────────────────┴───────────────────────────────┴─┴─┴───╯
+
+Top Recommendations
+
+   1. Remove function: `_download_and_parse_himawari_bt`  (confidence 95% · 
+minutes)
+   2. Remove function: `_normalize_cloud_value`  (confidence 95% · minutes)
+   3. Remove function: `_limiting_magnitude`  (confidence 95% · minutes)
+   4. Remove function: `_generate_fallback_stars`  (confidence 95% · minutes)
+   5. Remove function: `_build_usage_response`  (confidence 95% · minutes)
+   6. Remove function: `_num`  (confidence 95% · minutes)
+   7. Duplicate class name: `OTPRequest` defined in 2 files  (confidence 90% · 
+hours)
+   8. Duplicate class name: `PlanType` defined in 2 files  (confidence 90% · 
+hours)
+   9. Duplicate class name: `SubscriptionStatusResponse` defined in 2 files  
+(confidence 90% · hours)
+  10. Duplicate class name: `UsageLimitResponse` defined in 2 files  (confidence
+90% · hours)
+

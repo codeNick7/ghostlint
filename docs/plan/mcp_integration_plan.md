@@ -159,7 +159,7 @@ Output: { "findings": [ ... ] }
 ## File Structure
 
 ```
-backend/
+app/
   ghostlint_mcp/
     __init__.py
     server.py          # FastMCP server — tool definitions, handlers

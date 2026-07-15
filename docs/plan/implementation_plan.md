@@ -510,7 +510,7 @@ All decisions resolved on 2026-07-09. See header table.
 ## 14. TODO Tracking
 
 ### Phase 1 (active)
-- [x] Monorepo scaffold under `backend/` with uv + pyproject.toml + requirements.txt
+- [x] Monorepo scaffold under `app/` with uv + pyproject.toml + requirements.txt
 - [x] File indexer (Python + JS language detection)
 - [x] AST engine: tree-sitter for Python + JavaScript (with correct grammars)
 - [x] Symbol graph (NetworkX) — two-pass definition/reference resolution

@@ -2,7 +2,7 @@
 Fix the four accuracy issues found in the verification of `report-new.txt`, and add a CLI `--output/-o` option to dump the full report to a text file (console shows progress + findings table only).
 
 ## Scope note
-The scanned target is a sibling repo (`COSMOS-Observation-Planner`); all fixes go in the ghostlint tool under `backend/`. No changes to the target repo.
+The scanned target is a sibling repo (`COSMOS-Observation-Planner`); all fixes go in the ghostlint tool under `app/`. No changes to the target repo.
 
 ---
 
@@ -53,9 +53,9 @@ The scanned target is a sibling repo (`COSMOS-Observation-Planner`); all fixes g
   - unused functions / layer violations / duplicate class names → unchanged
 
 ## Files changed
-- `backend/ghostlint_engine/detectors/test_health/detector.py` (Fix 1)
-- `backend/ghostlint_engine/detectors/dead_code/detector.py` (Fix 2)
-- `backend/ghostlint_engine/detectors/refactor/detector.py` (Fix 3)
-- `backend/ghostlint_engine/detectors/duplicate_logic/detector.py` (Fix 4)
-- `backend/ghostlint_cli/main.py` + `backend/ghostlint_cli/output.py` (CLI feature)
-- `backend/tests/unit/test_dead_code.py` (extended), new `test_test_health.py`, new `test_refactor.py`
+- `app/ghostlint_engine/detectors/test_health/detector.py` (Fix 1)
+- `app/ghostlint_engine/detectors/dead_code/detector.py` (Fix 2)
+- `app/ghostlint_engine/detectors/refactor/detector.py` (Fix 3)
+- `app/ghostlint_engine/detectors/duplicate_logic/detector.py` (Fix 4)
+- `app/ghostlint_cli/main.py` + `app/ghostlint_cli/output.py` (CLI feature)
+- `app/tests/unit/test_dead_code.py` (extended), new `test_test_health.py`, new `test_refactor.py`
