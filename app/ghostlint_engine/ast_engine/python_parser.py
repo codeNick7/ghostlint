@@ -155,21 +155,25 @@ def _walk_references(node: Node, source: bytes, file_path: str, refs: list[Symbo
                         kind="call",
                     ))
                 elif arg.type == "attribute":
-                    # Attribute passed as callback argument — e.g. mpl_connect('event',
-                    # self._on_click) or scheduler.add_job(self._run_task). The method
-                    # is referenced by value, not called at this site, so it would
-                    # otherwise appear unreferenced to the dead-code detector.
+                    # Only track self.X / cls.X passed as positional callback arguments —
+                    # e.g. mpl_connect('button_press_event', self._on_click) or
+                    # scheduler.add_job(self._run_task). Tracking ANY obj.attr would
+                    # create false-positive orphan-call refs for attribute names like
+                    # `response.content`, `path.parent`, `np.float32`, `logging.INFO`, etc.
+                    obj_node = arg.child_by_field_name("object")
                     attr_node = arg.child_by_field_name("attribute")
-                    if attr_node:
-                        refs.append(SymbolRef(
-                            name=_node_text(attr_node, source),
-                            file_path=file_path,
-                            line=arg.start_point[0] + 1,
-                            kind="call",
-                        ))
+                    if obj_node and attr_node:
+                        obj_text = _node_text(obj_node, source)
+                        if obj_text in ("self", "cls"):
+                            refs.append(SymbolRef(
+                                name=_node_text(attr_node, source),
+                                file_path=file_path,
+                                line=arg.start_point[0] + 1,
+                                kind="call",
+                            ))
                 elif arg.type == "keyword_argument":
                     # keyword_argument: name=value — capture the value if it's an identifier
-                    # or an attribute (e.g. target=self._worker, command=self._on_click)
+                    # or a self.X / cls.X attribute (e.g. target=self._worker).
                     val = arg.child_by_field_name("value")
                     if val and val.type == "identifier":
                         refs.append(SymbolRef(
@@ -179,14 +183,17 @@ def _walk_references(node: Node, source: bytes, file_path: str, refs: list[Symbo
                             kind="call",
                         ))
                     elif val and val.type == "attribute":
+                        obj_node = val.child_by_field_name("object")
                         attr_node = val.child_by_field_name("attribute")
-                        if attr_node:
-                            refs.append(SymbolRef(
-                                name=_node_text(attr_node, source),
-                                file_path=file_path,
-                                line=val.start_point[0] + 1,
-                                kind="call",
-                            ))
+                        if obj_node and attr_node:
+                            obj_text = _node_text(obj_node, source)
+                            if obj_text in ("self", "cls"):
+                                refs.append(SymbolRef(
+                                    name=_node_text(attr_node, source),
+                                    file_path=file_path,
+                                    line=val.start_point[0] + 1,
+                                    kind="call",
+                                ))
 
     elif node.type == "import_from_statement":
         for child in node.children:
