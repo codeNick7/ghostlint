@@ -26,10 +26,33 @@ class ScanConfig:
     repo_path: Path
     scan_mode: str = "full"
     exclude_dirs: set[str] = field(default_factory=set)
+    exclude_paths: list[str] = field(default_factory=list)
     confidence_threshold: float = 0.6
     engines: list[str] = field(default_factory=lambda: [ALL_ENGINES])
     changed_files: list[str] | None = None  # if set, filter findings to these files only
     skip_persist: bool = False              # if True, don't write to SQLite history
+
+
+def _load_repo_config(repo_path: Path) -> dict:
+    """Load ghostlint.toml from the repository root, if present.
+
+    Returns a dict with zero or more of these keys:
+      ``exclude`` — list of path patterns to exclude from scanning
+
+    Silent on any parse error so a broken config file never prevents a scan.
+    """
+    for name in ("ghostlint.toml",):
+        cfg_path = repo_path / name
+        if not cfg_path.exists():
+            continue
+        try:
+            import tomllib
+            with cfg_path.open("rb") as fh:
+                data = tomllib.load(fh)
+            return data.get("scan", data)  # support [scan] table or flat top-level
+        except Exception:
+            pass
+    return {}
 
 
 class Scanner:
@@ -61,10 +84,21 @@ class Scanner:
         started_at = datetime.now(timezone.utc)
         detectors = self._resolve_engines()
 
-        # 1. Index all relevant files
-        files = self.indexer.index(self.config.repo_path, self.config.exclude_dirs)
+        # 1. Merge CLI/API excludes with any ghostlint.toml config from the repo root
+        repo_cfg = _load_repo_config(self.config.repo_path)
+        cfg_excludes: list[str] = repo_cfg.get("exclude", [])
+        if not isinstance(cfg_excludes, list):
+            cfg_excludes = []
+        merged_exclude_paths = list(self.config.exclude_paths) + cfg_excludes
 
-        # 2. Parse each file — two passes to ensure all definitions exist before
+        # 2. Index all relevant files
+        files = self.indexer.index(
+            self.config.repo_path,
+            self.config.exclude_dirs,
+            exclude_paths=merged_exclude_paths,
+        )
+
+        # 3. Parse each file — two passes to ensure all definitions exist before
         #    references are resolved (avoids false dead-code when file A imports
         #    from file B that is parsed later alphabetically).
         symbol_graph = SymbolGraph()
@@ -93,7 +127,7 @@ class Scanner:
             repo_path=str(self.config.repo_path),
         )
 
-        # 3. Run selected engines
+        # 4. Run selected engines
         all_findings = []
         changed_set = set(self.config.changed_files) if self.config.changed_files else None
         for detector in detectors:
@@ -107,11 +141,11 @@ class Scanner:
             except Exception:
                 pass
 
-        # 4. Score and recommend
+        # 5. Score and recommend
         health_score = compute_health_score(all_findings, symbol_graph.total_definitions())
         recommendations = generate_recommendations(all_findings)
 
-        # 5. Git metrics (best-effort — never fails the scan)
+        # 6. Git metrics (best-effort — never fails the scan)
         from ghostlint_engine.git_metrics import compute_git_metrics
         git_metrics = compute_git_metrics(self.config.repo_path)
 
@@ -130,7 +164,7 @@ class Scanner:
             git_metrics=git_metrics,
         )
 
-        # 5. Persist to SQLite (skipped for partial / ephemeral scans)
+        # 7. Persist to SQLite (skipped for partial / ephemeral scans)
         if not self.config.skip_persist:
             self._save(result, health_score)
         return result

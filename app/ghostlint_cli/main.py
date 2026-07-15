@@ -129,6 +129,15 @@ def scan(
         False, "--headless",
         help="Skip opening the browser after generating the HTML report.",
     ),
+    exclude: Optional[list[str]] = typer.Option(
+        None, "--exclude", "-x",
+        help=(
+            "Exclude paths or patterns from scanning. Repeat to add multiple. "
+            "Accepts: directory names (web-new), relative path prefixes "
+            "(frontend/store), or globs (*.generated.py). "
+            "Also loaded automatically from ghostlint.toml in the repo root."
+        ),
+    ),
 ) -> None:
     """Scan a repository for health issues and open an HTML report in the browser.
 
@@ -149,6 +158,10 @@ def scan(
       ghostlint scan --quick                             # fast engines only (pre-commit)
 
       ghostlint scan --format json                       # machine-readable for CI
+
+      ghostlint scan -x web-new -x frontend/store        # exclude directories
+
+      ghostlint scan -x "*.generated.py"                 # exclude by glob pattern
     """
     # ── Resolve repo path ──────────────────────────────────────────────────────
     cloned_tmp: Optional[Path] = None
@@ -172,6 +185,7 @@ def scan(
             changed=changed,
             output=output,
             headless=headless,
+            exclude=exclude or [],
         )
     finally:
         if cloned_tmp is not None:
@@ -187,6 +201,7 @@ def _run_scan(
     changed: bool,
     output: Optional[Path],
     headless: bool,
+    exclude: list[str] | None = None,
 ) -> None:
     if quick:
         engines = [FAST_ENGINES]
@@ -212,6 +227,7 @@ def _run_scan(
         confidence_threshold=min_confidence,
         engines=engines,
         changed_files=changed_files,
+        exclude_paths=exclude or [],
     )
     scanner = Scanner(config)
 

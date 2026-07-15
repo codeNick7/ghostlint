@@ -1,4 +1,5 @@
 from __future__ import annotations
+import fnmatch
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +34,36 @@ EXCLUDE_DIRS: set[str] = {
 MAX_FILE_BYTES = 512 * 1024  # skip files larger than 512 KB
 
 
+def _matches_exclude_pattern(rel_path: str, patterns: list[str]) -> bool:
+    """Return True if rel_path should be excluded by a user-supplied pattern list.
+
+    Pattern semantics (case-sensitive, forward-slash normalized):
+      - ``web-new``          → plain name: excluded if any path segment equals it
+      - ``frontend/store``   → path prefix: excluded if rel_path starts with it
+      - ``*.generated.py``   → glob: matched against the filename only
+      - ``src/**/*.test.ts`` → glob: matched against the full relative path
+    """
+    norm = rel_path.replace("\\", "/")
+    parts = norm.split("/")
+    for pat in patterns:
+        p = pat.replace("\\", "/").strip().rstrip("/")
+        if not p or p.startswith("#"):
+            continue
+        if "*" in p or "?" in p or "[" in p:
+            # Glob: try full-path match, then filename-only match
+            if fnmatch.fnmatch(norm, p) or fnmatch.fnmatch(parts[-1], p):
+                return True
+        elif "/" in p:
+            # Relative path prefix: frontend/store/foo.tsx starts with frontend/store
+            if norm.startswith(p + "/") or norm == p:
+                return True
+        else:
+            # Plain segment name: matches any directory or file name in the path
+            if p in parts:
+                return True
+    return False
+
+
 @dataclass
 class FileInfo:
     path: Path
@@ -44,8 +75,14 @@ class FileInfo:
 
 
 class FileIndexer:
-    def index(self, repo_path: Path, exclude_dirs: set[str] | None = None) -> list[FileInfo]:
+    def index(
+        self,
+        repo_path: Path,
+        exclude_dirs: set[str] | None = None,
+        exclude_paths: list[str] | None = None,
+    ) -> list[FileInfo]:
         excludes = EXCLUDE_DIRS | (exclude_dirs or set())
+        user_patterns = exclude_paths or []
         results: list[FileInfo] = []
 
         for file_path in repo_path.rglob("*"):
@@ -53,6 +90,11 @@ class FileIndexer:
                 continue
             if any(part in excludes for part in file_path.parts):
                 continue
+            # User-supplied exclude patterns (CLI --exclude / config file)
+            if user_patterns:
+                rel = str(file_path.relative_to(repo_path))
+                if _matches_exclude_pattern(rel, user_patterns):
+                    continue
 
             language = LANGUAGE_MAP.get(file_path.suffix.lower())
             if language is None:

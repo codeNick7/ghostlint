@@ -57,7 +57,7 @@ mcp = FastMCP(
 
 def _run_scan(repo_path: Path, engines: list[str] | None = None,
               min_confidence: float = 0.6, changed_files: list[str] | None = None,
-              skip_persist: bool = False):
+              skip_persist: bool = False, exclude: list[str] | None = None):
     resolved_engines = engines if engines else [ALL_ENGINES]
     config = ScanConfig(
         repo_path=repo_path,
@@ -66,6 +66,7 @@ def _run_scan(repo_path: Path, engines: list[str] | None = None,
         engines=resolved_engines,
         changed_files=changed_files,
         skip_persist=skip_persist,
+        exclude_paths=exclude or [],
     )
     return Scanner(config).scan()
 
@@ -230,6 +231,7 @@ def _get_scan_result(
     force_refresh: bool = False,
     engines: list[str] | None = None,
     min_confidence: float = 0.6,
+    exclude: list[str] | None = None,
 ) -> ScanResult:
     """Return a ScanResult for ``repo_path`` from cache, or run+persist a scan.
 
@@ -239,13 +241,15 @@ def _get_scan_result(
     if not repo_path.exists():
         raise FileNotFoundError(f"Path does not exist: {repo_path}")
 
-    if not force_refresh:
+    if not force_refresh and not exclude:
+        # Only serve from cache when no exclude overrides are active — different
+        # exclude sets produce different results and must not share a cache record.
         cached = _reconstruct_scan_from_cache(repo_path)
         if cached is not None:
             return cached
 
-    # Cache miss or forced refresh — run a real, persisted scan.
-    return _run_scan(repo_path, engines, min_confidence)
+    # Cache miss, forced refresh, or exclude overrides — run a real, persisted scan.
+    return _run_scan(repo_path, engines, min_confidence, exclude=exclude)
 
 
 def _find_by_category(
@@ -271,6 +275,7 @@ def scan_repo(
     github: str = "",
     engines: list[str] = [],
     min_confidence: float = 0.6,
+    exclude: list[str] = [],
 ) -> dict:
     """Perform a full repository health scan.
 
@@ -288,6 +293,11 @@ def scan_repo(
                  Valid values: dead_code, duplicate_logic, refactor, arch_drift,
                  config_health, doc_health, dependency_health, test_health, naming.
         min_confidence: Minimum confidence threshold for findings (0.0–1.0).
+        exclude: Paths or patterns to exclude from the scan. Accepts:
+                 - directory names (``web-new``, ``frontend``) — any path segment
+                 - relative path prefixes (``frontend/store``, ``backend/scripts``)
+                 - glob patterns (``*.generated.py``, ``**/*.test.ts``)
+                 Also merged with patterns from ``ghostlint.toml`` in the repo root.
 
     Returns:
         health_score, git_metrics, findings_summary, top_findings,
@@ -303,7 +313,7 @@ def scan_repo(
             if not repo_path.exists():
                 return {"error": f"Path does not exist: {repo_path}"}
 
-        result = _run_scan(repo_path, engines or None, min_confidence)
+        result = _run_scan(repo_path, engines or None, min_confidence, exclude=exclude or None)
         return build_full_scan_response(result)
 
     except Exception as exc:
@@ -318,6 +328,7 @@ def scan_files(
     repo_path: str,
     files: list[str],
     min_confidence: float = 0.6,
+    exclude: list[str] = [],
 ) -> dict:
     """Scan specific files within a repository for health issues.
 
@@ -331,6 +342,8 @@ def scan_files(
         files: List of file paths to focus on. Can be relative to repo_path
                or absolute.
         min_confidence: Minimum confidence threshold for findings (0.0–1.0).
+        exclude: Paths or patterns to exclude from the scan (same format as
+                 scan_repo). Merged with patterns from ``ghostlint.toml``.
 
     Returns:
         findings scoped to the given files, a prose health_context, and the
@@ -355,7 +368,7 @@ def scan_files(
 
         # skip_persist=True: partial scans must not overwrite full-scan DB records
         result = _run_scan(root, None, min_confidence, changed_files=None,
-                           skip_persist=True)
+                           skip_persist=True, exclude=exclude or None)
 
         scoped_findings = [
             f for f in result.findings
