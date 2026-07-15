@@ -579,6 +579,30 @@ class TestCheckDiff:
             assert isinstance(result.get("new_findings", []), list)
             assert isinstance(result.get("resolved_findings", []), list)
 
+    def test_path_traversal_diff_rejected(self, committed_repo: Path) -> None:
+        traversal_diff = (
+            "--- a/../../etc/passwd\n"
+            "+++ b/../../etc/passwd\n"
+            "@@ -1 +1 @@\n"
+            "-root:x:0:0:root:/root:/bin/bash\n"
+            "+pwned\n"
+        )
+        result = check_diff(repo_path=str(committed_repo), diff=traversal_diff)
+        assert "error" in result
+        assert "traversal" in result["error"].lower() or "rejected" in result["error"].lower()
+
+    def test_absolute_path_diff_rejected(self, committed_repo: Path) -> None:
+        absolute_diff = (
+            "--- /etc/hosts\n"
+            "+++ /etc/hosts\n"
+            "@@ -1 +1 @@\n"
+            "-127.0.0.1 localhost\n"
+            "+0.0.0.0 evil.com\n"
+        )
+        result = check_diff(repo_path=str(committed_repo), diff=absolute_diff)
+        assert "error" in result
+        assert "rejected" in result["error"].lower()
+
 
 def _make_diff_adding_unused_func(committed_repo: Path) -> str:
     """Build a unified diff that adds a new unused function to utils.py.

@@ -1,6 +1,7 @@
 """ghostlint MCP server — stdio transport, FastMCP-based."""
 from __future__ import annotations
 import json
+import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -548,6 +549,29 @@ def list_findings(
         return {"error": str(exc)}
 
 
+def _validate_diff_paths(diff: str) -> str | None:
+    """Return an error string if the diff contains path-traversal attempts, else None.
+
+    Inspects every --- / +++ header in the unified diff and rejects:
+      • absolute paths (start with /)
+      • paths containing .. components after stripping the a/ or b/ git prefix
+    This prevents `patch -p1` from writing files outside the temp directory.
+    """
+    _HEADER_RE = re.compile(r'^(?:---|\+\+\+) (.+?)(?:\t.*)?$', re.MULTILINE)
+    for m in _HEADER_RE.finditer(diff):
+        raw = m.group(1).strip()
+        # Strip standard git a/ b/ prefix added by `git diff`
+        path = raw[2:] if raw.startswith(("a/", "b/")) else raw
+        if path in ("/dev/null", "dev/null"):
+            continue
+        if Path(path).is_absolute():
+            return f"Diff rejected: absolute path in header: {raw!r}"
+        # Resolve to detect .. escapes — Path("a/../../../etc") has parts ["..", "..", "etc"]
+        if ".." in Path(path).parts:
+            return f"Diff rejected: path traversal in header: {raw!r}"
+    return None
+
+
 @mcp.tool()
 def check_diff(
     repo_path: str,
@@ -578,6 +602,11 @@ def check_diff(
         root = Path(repo_path).resolve()
         if not root.exists():
             return {"error": f"repo_path does not exist: {root}"}
+
+        # ── Reject path-traversal attempts in diff headers ────────────────────
+        path_error = _validate_diff_paths(diff)
+        if path_error:
+            return {"error": path_error}
 
         # ── Baseline scan (not persisted — ephemeral comparison) ──────────────
         baseline = _run_scan(root, engines or None, min_confidence, skip_persist=True)
