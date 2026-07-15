@@ -257,22 +257,6 @@ The action writes a summary to the GitHub Actions step summary page.
 
 ---
 
-## Dashboard (Next.js)
-
-The `frontend/` directory contains a Next.js 14 dashboard that connects to the ghostlint FastAPI server.
-
-```bash
-# Start the API server
-cd app && uvicorn app.main:app --reload
-
-# Start the dashboard
-cd frontend && npm install && npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
 ## API Server
 
 ```bash
@@ -338,8 +322,8 @@ exclude_dirs:
 
 ```bash
 git clone https://github.com/yourorg/ghostlint
-cd ghostlint/backend
-uv sync
+cd ghostlint/app
+uv sync --all-groups
 .venv/bin/python -m pytest tests/unit/ -v
 ```
 
@@ -366,7 +350,6 @@ app/
     web_server.py           # Hardened localhost HTTP server + browser launch
   app/                      # FastAPI server + /scans endpoints
 
-frontend/                   # Next.js 14 dashboard
 github-action/              # Docker-based GitHub Action
 ```
 

@@ -1,6 +1,6 @@
-name: 'Tiramasu Repository Health'
+name: 'ghostlint Repository Health'
 description: 'Scan repository for health issues: dead code, duplicates, drift, and more.'
-author: 'Tiramasu'
+author: 'ghostlint'
 
 branding:
   icon: 'activity'

@@ -1,5 +1,7 @@
 # Repository Health Intelligence Platform (Working Specification)
 
+> **Implementation Status (2026-07-15)** — Shipped as **ghostlint**. Technology stack differs from the spec below: no Next.js frontend (replaced by self-contained HTML report), no PostgreSQL/Redis (SQLite only), no LiteLLM/embeddings in the analysis loop (analysis is fully deterministic). MCP server with 19 tools was added beyond this original spec.
+
 > **Working Goal**
 >
 > Build an AI-assisted engineering platform that continuously scans a

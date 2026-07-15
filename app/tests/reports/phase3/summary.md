@@ -5,7 +5,7 @@
 ### 3a. GitHub Action (`github-action/`)
 - `action.yml`: Docker-based GitHub Action with inputs for engines, min_confidence,
   fail_on_score_below, format. Outputs: health_score, findings_count, report_path.
-- `Dockerfile`: Python 3.12-slim image, installs ghostlint from backend/, sets WORKDIR /repo.
+- `Dockerfile`: Python 3.12-slim image, installs ghostlint from app/, sets WORKDIR /repo.
 - `entrypoint.sh`: Parses env vars, runs `ghostlint scan`, writes outputs to $GITHUB_OUTPUT,
   emits a markdown summary table to $GITHUB_STEP_SUMMARY, exits 1 if score < threshold.
 

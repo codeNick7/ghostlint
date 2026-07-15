@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-LABEL org.opencontainers.image.title="Tiramasu Repository Health"
+LABEL org.opencontainers.image.title="ghostlint Repository Health"
 LABEL org.opencontainers.image.description="Repository Health Intelligence scanner"
 
 # Install system dependencies for tree-sitter compilation
@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir uv
 
 # Copy backend source
 WORKDIR /ghostlint
-COPY backend/ ./
+COPY app/ ./
 
 # Install ghostlint and its dependencies
 RUN uv pip install --system -e . --no-cache

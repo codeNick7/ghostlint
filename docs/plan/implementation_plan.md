@@ -4,6 +4,23 @@
 **Date**: 2026-07-09  
 **Status**: Phase 1 Active
 
+---
+
+> **Current Implementation Status (2026-07-15)**
+>
+> The project has shipped under the name **ghostlint**. The delivered architecture diverges from the multi-tier plan below — key differences:
+>
+> - **No Next.js frontend** — replaced by a self-contained HTML report served via a hardened localhost webserver (`ghostlint_cli/web_server.py`). The frontend directory was removed.
+> - **No PostgreSQL / Redis / Celery** — scan history persists in SQLite at `~/.ghostlint/ghostlint.db` (Phase 1 storage tier adopted as the production storage layer).
+> - **No LiteLLM / GPT-4o-mini in the analysis loop** — the analysis engine is fully deterministic (AST, symbol graph, git history). AI tools consume ghostlint output via MCP.
+> - **MCP server shipped** — `ghostlint_mcp/server.py` exposes 19 tools for Claude Code, Cursor, Windsurf, and Zed. Auto-configured with `ghostlint mcp setup`.
+> - **GitHub Action shipped** — under `github-action/` with Docker-based execution, score threshold, and step summary.
+> - **FastAPI server skeleton exists** (`app/app/`) but is not a required runtime dependency for CLI usage.
+>
+> All 9 detection engines are implemented. Phase 2 embeddings / ChromaDB / LLM layer is not implemented.
+
+---
+
 ### Resolved Decisions (2026-07-09)
 | # | Decision | Resolution |
 |---|----------|-----------|

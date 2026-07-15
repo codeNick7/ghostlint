@@ -23,7 +23,7 @@ if [ "${ENGINES}" != "all" ]; then
 fi
 
 # ── Run scan ─────────────────────────────────────────────────────────────────
-echo "::group::Tiramasu Repository Health Scan"
+echo "::group::ghostlint Repository Health Scan"
 echo "Scanning: ${REPO_PATH}"
 echo "Engines: ${ENGINES}"
 echo "Min confidence: ${MIN_CONFIDENCE}"
@@ -60,7 +60,7 @@ fi
 # ── Emit GitHub Actions summary ───────────────────────────────────────────────
 if [ -n "${GITHUB_STEP_SUMMARY}" ]; then
   cat >> "${GITHUB_STEP_SUMMARY}" << EOF
-## Tiramasu Repository Health
+## ghostlint Repository Health
 
 | Metric | Value |
 |--------|-------|

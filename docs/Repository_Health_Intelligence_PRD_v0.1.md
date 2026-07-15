@@ -4,6 +4,27 @@
 
 Version: 0.1 (Foundational Vision)
 
+---
+
+> **Implementation Status (2026-07-15) — ghostlint v0.1 shipped**
+>
+> V1 Deliverables delivered:
+> - **CLI** ✅ — `ghostlint scan`, `ghostlint report`, `ghostlint engines`, `ghostlint mcp setup`
+> - **GitHub Action** ✅ — `github-action/` with score threshold + step summary
+> - **Tree-sitter parser** ✅ — Python + JS/TS via tree-sitter
+> - **Git history analyzer** ✅ — stability index, maintenance velocity, refactor completion, friction index
+> - **Repository Health Score** ✅ — weighted 9-category score
+> - **Cleanup recommendations** ✅ — ranked by effort/impact
+> - **MCP server** ✅ — 19 tools (not in original V1 spec; shipped alongside CLI)
+> - **HTML report** ✅ — self-contained, served on random localhost port with DNS-rebinding protection
+>
+> V1 Deliverables **not shipped** (deferred):
+> - **Web dashboard (Next.js)** — superseded by HTML report; frontend directory removed
+> - **FastAPI backend** — skeleton exists at `app/app/`; not a required runtime dependency
+> - **PostgreSQL** — replaced by SQLite at `~/.ghostlint/ghostlint.db` for local-first operation
+
+---
+
 ## Executive Summary
 
 Repository Health Intelligence (working name) is a repository analysis

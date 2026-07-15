@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import scans
 
 app = FastAPI(
-    title="Tiramasu API",
+    title="ghostlint API",
     description="Repository Health Intelligence Platform",
     version="0.1.0",
 )
