@@ -1,4 +1,4 @@
-"""Integration tests for the tiramisu MCP server tools.
+"""Integration tests for the ghostlint MCP server tools.
 
 Each test calls the tool function directly (not via MCP transport) since
 the functions are plain Python callables decorated with @mcp.tool().
@@ -7,7 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 import pytest
 
-from tiramisu_mcp.server import (
+from ghostlint_mcp.server import (
     check_diff,
     estimate_cleanup_effort,
     explain_repository_history,

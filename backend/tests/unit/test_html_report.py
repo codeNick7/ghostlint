@@ -4,11 +4,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 import pytest
 
-from tiramisu_engine.models.findings import (
+from ghostlint_engine.models.findings import (
     ScanResult, HealthScore, GitMetrics, Finding,
     DetectionCategory, RiskLevel, EffortLevel, Evidence,
 )
-from tiramisu_cli.html_report import generate_html_report, write_html_report
+from ghostlint_cli.html_report import generate_html_report, write_html_report
 
 
 def _make_result(findings: list | None = None) -> ScanResult:
@@ -67,9 +67,9 @@ class TestGenerateHtmlReport:
         html = generate_html_report(_make_result())
         assert "82.5" in html
 
-    def test_contains_tiramisu_branding(self) -> None:
+    def test_contains_ghostlint_branding(self) -> None:
         html = generate_html_report(_make_result())
-        assert "tiramisu" in html.lower()
+        assert "ghostlint" in html.lower()
 
     def test_contains_git_metrics_when_available(self) -> None:
         html = generate_html_report(_make_result())

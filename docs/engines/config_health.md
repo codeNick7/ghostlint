@@ -37,6 +37,6 @@ CONFIG HEALTH  REDIS_URL defined in .env.example but missing from .env    .env.e
 ## Running This Engine
 
 ```bash
-tiramisu scan -e config_health
-tiramisu scan --quick   # config_health is included in --quick (fast engine)
+ghostlint scan -e config_health
+ghostlint scan --quick   # config_health is included in --quick (fast engine)
 ```

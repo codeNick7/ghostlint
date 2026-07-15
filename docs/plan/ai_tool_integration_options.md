@@ -1,13 +1,13 @@
-# tiramisu × AI Coding Tools — Integration Options
+# ghostlint × AI Coding Tools — Integration Options
 
 The core problem: an AI coding assistant (Claude Code, Cursor, Copilot, Aider, etc.)
 needs to know the health of the codebase it's about to modify — not after the fact,
-but before or during the edit. Tiramisu already produces exactly that signal.
+but before or during the edit. Ghostlint already produces exactly that signal.
 The question is: what is the cleanest way to connect them?
 
 Three invocation modes must be handled:
 
-| Mode | What the AI has | What tiramisu should return |
+| Mode | What the AI has | What ghostlint should return |
 |---|---|---|
 | **No context** | Just a question ("is auth risky to touch?") | Full scan summary + risk map |
 | **Partial context** | A file, a diff, a changed module | Targeted findings for those paths |
@@ -17,14 +17,14 @@ Three invocation modes must be handled:
 
 ## Option A — MCP Server (Model Context Protocol)
 
-**How it works:** tiramisu runs as an MCP tool server. Any MCP-compatible client
+**How it works:** ghostlint runs as an MCP tool server. Any MCP-compatible client
 (Claude Code, Cursor with MCP support, custom agents) can call named tools like
-`tiramisu_scan`, `tiramisu_query_file`, `tiramisu_impact_check`.
+`ghostlint_scan`, `ghostlint_query_file`, `ghostlint_impact_check`.
 
 **What the AI sees:**
 ```json
 {
-  "tool": "tiramisu_impact_check",
+  "tool": "ghostlint_impact_check",
   "input": { "diff": "--- a/auth.py\n+++ b/auth.py\n..." }
 }
 → { "risk": "HIGH", "findings": [...], "score_delta": -12 }
@@ -41,7 +41,7 @@ Three invocation modes must be handled:
 
 **Cons:**
 - Requires the MCP server to be running (daemon or on-demand via `uvx`)
-- The AI must decide to call tiramisu — it won't happen automatically unless
+- The AI must decide to call ghostlint — it won't happen automatically unless
   system-prompted or hooked
 
 **Implementation effort:** Medium. FastAPI + `mcp` Python library.
@@ -49,10 +49,10 @@ The existing FastAPI server is nearly there; MCP adds a tool manifest on top.
 
 ---
 
-## Option B — Context Snapshot File (`.tiramisu/context.json`)
+## Option B — Context Snapshot File (`.ghostlint/context.json`)
 
-**How it works:** Running `tiramisu snapshot` writes a structured JSON file to the
-repo root at `.tiramisu/context.json`. AI tools include it in their context window
+**How it works:** Running `ghostlint snapshot` writes a structured JSON file to the
+repo root at `.ghostlint/context.json`. AI tools include it in their context window
 via `.cursorrules`, `CLAUDE.md`, or similar per-tool config files.
 
 ```json
@@ -77,11 +77,11 @@ the AI already has the risk map.
 - Works with every AI tool today — no protocol, no server, no plugin
 - Zero runtime dependency; the snapshot ages gracefully
 - Can be committed to the repo so the whole team has the same health picture
-- Claude Code picks it up via `CLAUDE.md @.tiramisu/context.json` in one line
+- Claude Code picks it up via `CLAUDE.md @.ghostlint/context.json` in one line
 
 **Cons:**
 - Static — stale the moment code changes
-- Requires discipline to re-run `tiramisu snapshot` regularly (or automate it as a
+- Requires discipline to re-run `ghostlint snapshot` regularly (or automate it as a
   pre-commit hook or CI step)
 - No "what if" capability
 
@@ -93,8 +93,8 @@ the JSON; the existing `ScanResult` serialization is almost there.
 ## Option C — Pre/Post Edit Hook (Subprocess / Stdio)
 
 **How it works:** The AI tool's hook system (Claude Code hooks, Cursor rules,
-Aider `--watch` callbacks) shells out to tiramisu before or after each edit.
-tiramisu outputs structured JSON; the hook injects findings back into context.
+Aider `--watch` callbacks) shells out to ghostlint before or after each edit.
+ghostlint outputs structured JSON; the hook injects findings back into context.
 
 ```
 # Claude Code settings.json hook example
@@ -102,20 +102,20 @@ tiramisu outputs structured JSON; the hook injects findings back into context.
   "hooks": {
     "PreToolUse": [{
       "matcher": "Edit|Write",
-      "command": "tiramisu scan --changed --format json --headless"
+      "command": "ghostlint scan --changed --format json --headless"
     }]
   }
 }
 ```
 
-Tiramisu scans the changed files, emits JSON to stdout, and the hook framework
+Ghostlint scans the changed files, emits JSON to stdout, and the hook framework
 feeds that back to the model as a system observation.
 
 **Covers which modes:** Partial context (changed files). Can approximate hypothetical
 if run on a staged patch.
 
 **Pros:**
-- Works with Claude Code today without any new tiramisu code
+- Works with Claude Code today without any new ghostlint code
 - Automatic — the AI sees health context on every edit, not just when asked
 - `--changed` mode is already implemented; output is already JSON
 
@@ -126,15 +126,15 @@ if run on a staged patch.
 - Not useful for "what if I implement feature X" questions — only reacts to
   actual edits
 
-**Implementation effort:** Zero for tiramisu. Config-only on the AI tool side.
-Add a `tiramisu hook-config` command to generate the config snippet as a nice-to-have.
+**Implementation effort:** Zero for ghostlint. Config-only on the AI tool side.
+Add a `ghostlint hook-config` command to generate the config snippet as a nice-to-have.
 
 ---
 
 ## Option D — Differential / Hypothetical Analysis
 
 **How it works:** A new endpoint `POST /analyze/diff` accepts a unified diff or
-a partial file tree. Tiramisu applies the patch to a temporary copy of the repo,
+a partial file tree. Ghostlint applies the patch to a temporary copy of the repo,
 runs its engines on the projected state, and returns the delta.
 
 ```
@@ -163,13 +163,13 @@ if I add feature A?").
 **Pros:**
 - Uniquely powerful — no linter or SAST tool offers projected-state diff analysis
 - Works as an API the AI agent can call as a tool (function calling / MCP tool)
-- Makes tiramisu a genuine co-pilot rather than a post-hoc reporter
+- Makes ghostlint a genuine co-pilot rather than a post-hoc reporter
 
 **Cons:**
 - Hardest to implement: requires a patch-apply + isolated scan pipeline
 - For large repos, running a full scan on every proposed diff is expensive
   (mitigated by running only fast engines + scoping to changed files)
-- Needs the tiramisu API server to be running (or a cloud endpoint)
+- Needs the ghostlint API server to be running (or a cloud endpoint)
 
 **Implementation effort:** High. New `POST /analyze/diff` route; patch-apply logic;
 scoped re-scan; delta computation. ~2–3 days of backend work.
@@ -178,25 +178,25 @@ scoped re-scan; delta computation. ~2–3 days of backend work.
 
 ## Option E — LSP Diagnostics Server
 
-**How it works:** tiramisu runs as a Language Server Protocol server. Every editor
-with LSP support (VS Code, Cursor, Neovim, JetBrains) sees tiramisu findings as
+**How it works:** ghostlint runs as a Language Server Protocol server. Every editor
+with LSP support (VS Code, Cursor, Neovim, JetBrains) sees ghostlint findings as
 inline diagnostics — yellow/red squiggles — alongside compiler errors and lint warnings.
 
 AI tools that pull diagnostics into their context (Cursor, Copilot with Diagnostics
-access) automatically see tiramisu findings when the user asks about a file.
+access) automatically see ghostlint findings when the user asks about a file.
 
 **Covers which modes:** No-context (editor already open) and partial-context
 (current file diagnostics). Not hypothetical.
 
 **Pros:**
 - Deep editor integration — findings appear inline without any prompting
-- AI tools that read diagnostics get tiramisu data for free
+- AI tools that read diagnostics get ghostlint data for free
 - Familiar UX — same as eslint / pyright
 
 **Cons:**
 - LSP is a significant protocol to implement correctly
 - Background LSP scanning must be incremental and very fast to avoid blocking the editor
-- tiramisu's strengths (cross-file analysis, git history) don't map well to single-file
+- ghostlint's strengths (cross-file analysis, git history) don't map well to single-file
   LSP requests; shallow per-file mode would be needed
 - Won't help with "what if" questions unless combined with another option
 
@@ -207,13 +207,13 @@ incremental scan trigger on `didSave`. ~1 week.
 
 ## Option F — OpenAI-Compatible Tool Definition (Function Calling)
 
-**How it works:** Expose tiramisu's capabilities as a JSON tool schema compatible
+**How it works:** Expose ghostlint's capabilities as a JSON tool schema compatible
 with OpenAI function calling / Claude tool use / Gemini tools. Any AI that supports
-tool calling can invoke tiramisu without any protocol negotiation.
+tool calling can invoke ghostlint without any protocol negotiation.
 
 ```json
 {
-  "name": "tiramisu_check",
+  "name": "ghostlint_check",
   "description": "Scan a file path or diff for health issues, dead code, regressions",
   "parameters": {
     "type": "object",
@@ -241,7 +241,7 @@ and any LLM with function calling.
 - Doesn't auto-integrate into Cursor/Copilot — only useful in agent/API contexts
 - Overlaps heavily with MCP (Option A) which is more complete for IDE-native tools
 
-**Implementation effort:** Low. The tool schema is a JSON document; tiramisu
+**Implementation effort:** Low. The tool schema is a JSON document; ghostlint
 already has the API endpoints. This is mostly documentation + a `/tools` endpoint.
 
 ---
@@ -253,18 +253,18 @@ based on impact vs effort:
 
 | Priority | Option | Why |
 |---|---|---|
-| **1 — Ship now** | **C: Pre/Post Edit Hook** | Zero tiramisu changes. Immediate value in Claude Code and Cursor. Document a 5-line config snippet. |
+| **1 — Ship now** | **C: Pre/Post Edit Hook** | Zero ghostlint changes. Immediate value in Claude Code and Cursor. Document a 5-line config snippet. |
 | **2 — Ship soon** | **B: Context Snapshot File** | One new sub-command. Works with every tool without any integration. Great for team-shared health baseline. |
 | **3 — Next sprint** | **A: MCP Server** | Highest long-term value. One implementation serves Claude Code, Cursor, and any future MCP client. Builds on existing FastAPI server. |
 | **4 — Phase 2** | **D: Differential Analysis** | Unique capability, strongest "what if" story. Worth building once MCP is in place (it becomes an MCP tool). |
-| **Skip for now** | E: LSP | High effort, LSP's single-file model conflicts with tiramisu's cross-file strengths. |
+| **Skip for now** | E: LSP | High effort, LSP's single-file model conflicts with ghostlint's cross-file strengths. |
 | **Skip for now** | F: Function Calling schema | Fully covered by MCP once that's built. |
 
 ### Suggested sequencing
 
 ```
 Week 1:  C (hook config snippet + docs) — zero code
-Week 1:  B (tiramisu snapshot command) — ~1 day
+Week 1:  B (ghostlint snapshot command) — ~1 day
 Week 2–3: A (MCP server wrapping existing FastAPI routes) — ~3 days
 Month 2:  D (diff analysis endpoint, exposed as MCP tool) — ~3–4 days
 ```
@@ -272,8 +272,8 @@ Month 2:  D (diff analysis endpoint, exposed as MCP tool) — ~3–4 days
 The north-star experience:
 
 > User in Cursor: "What happens if I split the auth module into two?"
-> → Cursor invokes tiramisu MCP tool with the proposed diff
-> → tiramisu scans the projected state in 4 seconds
+> → Cursor invokes ghostlint MCP tool with the proposed diff
+> → ghostlint scans the projected state in 4 seconds
 > → Returns: "score drops from 84 → 77, 3 new dead-code findings in auth_helpers.py,
 >   refactor completion rate drops — you have 2 incomplete TODOs that reference the
 >   old module name"

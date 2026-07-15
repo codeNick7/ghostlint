@@ -13,10 +13,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir uv
 
 # Copy backend source
-WORKDIR /tiramasu
+WORKDIR /ghostlint
 COPY backend/ ./
 
-# Install tiramasu and its dependencies
+# Install ghostlint and its dependencies
 RUN uv pip install --system -e . --no-cache
 
 # The repo to scan is mounted at /repo at runtime

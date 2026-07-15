@@ -12,12 +12,12 @@ node_modules/
 *.db
 *.db-shm
 *.db-wal
-.tiramisu/
+.ghostlint/
 .pytest_cache/
 .ruff_cache/
 htmlcov/
 .coverage
-# Tiramisu temp files
-tiramisu_report_*
+# Ghostlint temp files
+ghostlint_report_*
 backend/report*.txt
 backend/report_analysis.md

@@ -324,7 +324,7 @@ export default function DashboardPage() {
         <div className="text-center">
           <div className="text-4xl mb-4">📭</div>
           <p className="text-gray-400">No scan data available.</p>
-          <p className="text-gray-600 text-sm mt-2">Run <code className="font-mono text-orange-400">tiramasu scan</code> to get started.</p>
+          <p className="text-gray-600 text-sm mt-2">Run <code className="font-mono text-orange-400">ghostlint scan</code> to get started.</p>
         </div>
       </div>
     )
@@ -401,12 +401,12 @@ export default function DashboardPage() {
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Scan Current Repo', cmd: 'tiramasu scan .' },
-                { label: 'Changed Files Only', cmd: 'tiramasu scan --changed' },
-                { label: 'Dead Code Only', cmd: 'tiramasu scan -e dead_code' },
-                { label: 'Fast Pre-commit', cmd: 'tiramasu scan --quick' },
-                { label: 'JSON Report', cmd: 'tiramasu scan --format json' },
-                { label: 'All Engines', cmd: 'tiramasu scan' },
+                { label: 'Scan Current Repo', cmd: 'ghostlint scan .' },
+                { label: 'Changed Files Only', cmd: 'ghostlint scan --changed' },
+                { label: 'Dead Code Only', cmd: 'ghostlint scan -e dead_code' },
+                { label: 'Fast Pre-commit', cmd: 'ghostlint scan --quick' },
+                { label: 'JSON Report', cmd: 'ghostlint scan --format json' },
+                { label: 'All Engines', cmd: 'ghostlint scan' },
               ].map(({ label, cmd }) => (
                 <div
                   key={cmd}

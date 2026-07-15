@@ -1,15 +1,15 @@
-# tiramisu MCP Server — Implementation Plan
+# ghostlint MCP Server — Implementation Plan
 
-**Decision:** Build tiramisu as an MCP (Model Context Protocol) server.
+**Decision:** Build ghostlint as an MCP (Model Context Protocol) server.
 MCP is the established standard for exposing arbitrary tools to AI coding
 assistants. One implementation; every MCP-compatible client (Claude Code,
 Cursor, Windsurf, Zed, custom agents) picks it up automatically.
 
 **North star UX:**
 ```
-pip install tiramisu
+pip install ghostlint
 # → in Claude Code, Cursor, etc.:
-tiramisu mcp setup   # auto-detects installed AI tools, writes their configs
+ghostlint mcp setup   # auto-detects installed AI tools, writes their configs
 ```
 That is the entire setup. Zero manual JSON editing for the user.
 
@@ -22,20 +22,20 @@ That is the entire setup. Zero manual JSON editing for the user.
    that speak JSON-RPC over stdin/stdout. This is simpler to install and
    more secure than an HTTP transport.
 
-2. **One command launches the server.** `tiramisu mcp` starts the stdio
+2. **One command launches the server.** `ghostlint mcp` starts the stdio
    MCP server. The AI tool config is just:
    ```json
-   { "command": "tiramisu", "args": ["mcp"] }
+   { "command": "ghostlint", "args": ["mcp"] }
    ```
 
-3. **Self-configuring.** `tiramisu mcp setup` auto-detects which AI tools
+3. **Self-configuring.** `ghostlint mcp setup` auto-detects which AI tools
    are installed on the machine and writes or patches their config files.
    No instructions to follow; the tool does it.
 
 4. **AI-readable setup docs.** The README has a "Connect to your AI tool"
    section written as a directive the AI tool itself can execute. A user can
-   literally say "set up tiramisu" to Claude Code and it will run
-   `tiramisu mcp setup` after reading the README.
+   literally say "set up ghostlint" to Claude Code and it will run
+   `ghostlint mcp setup` after reading the README.
 
 5. **Context-aware tools.** Tools accept an optional `files` list so the AI
    can pass partial context (just the files it's currently editing) without
@@ -106,7 +106,7 @@ include directly in its reasoning without further parsing.
 
 ### `check_diff`
 Hypothetical impact analysis. The AI sends a proposed diff before applying
-it; tiramisu returns the projected score delta and new findings.
+it; ghostlint returns the projected score delta and new findings.
 *Phase 2 — stub the tool now, implement the diff-apply engine later.*
 
 ```json
@@ -160,13 +160,13 @@ Output: { "findings": [ ... ] }
 
 ```
 backend/
-  tiramisu_mcp/
+  ghostlint_mcp/
     __init__.py
     server.py          # FastMCP server — tool definitions, handlers
     context_builder.py # Converts ScanResult → AI-friendly prose summaries
-  tiramisu_cli/
-    main.py            # adds:  tiramisu mcp         — launch stdio server
-                       #        tiramisu mcp setup   — auto-configure AI tools
+  ghostlint_cli/
+    main.py            # adds:  ghostlint mcp         — launch stdio server
+                       #        ghostlint mcp setup   — auto-configure AI tools
     mcp_setup.py       # Auto-detection + config-writing logic for each AI tool
 ```
 
@@ -174,7 +174,7 @@ No new dependencies beyond the `mcp` package from the MCP Python SDK.
 
 ---
 
-## `tiramisu mcp setup` — Auto-Configuration Logic
+## `ghostlint mcp setup` — Auto-Configuration Logic
 
 The setup command detects installed AI tools and writes/patches their config:
 
@@ -183,8 +183,8 @@ Config file: `~/.claude/settings.json` (global) or `.claude/settings.json` (proj
 ```json
 {
   "mcpServers": {
-    "tiramisu": {
-      "command": "tiramisu",
+    "ghostlint": {
+      "command": "ghostlint",
       "args": ["mcp"],
       "env": {}
     }
@@ -198,8 +198,8 @@ Config file: `~/.cursor/mcp.json`
 ```json
 {
   "mcpServers": {
-    "tiramisu": {
-      "command": "tiramisu",
+    "ghostlint": {
+      "command": "ghostlint",
       "args": ["mcp"]
     }
   }
@@ -212,8 +212,8 @@ Config file: `~/.codeium/windsurf/mcp_config.json`
 ```json
 {
   "mcpServers": {
-    "tiramisu": {
-      "command": "tiramisu",
+    "ghostlint": {
+      "command": "ghostlint",
       "args": ["mcp"]
     }
   }
@@ -229,7 +229,7 @@ Detection: check if `~/.config/zed/` exists.
 If none detected, print the generic JSON snippet and a note on where to
 paste it — don't fail silently.
 
-**Safety rule:** `mcp setup` never overwrites an existing `tiramisu` key —
+**Safety rule:** `mcp setup` never overwrites an existing `ghostlint` key —
 it merges. It prints a diff of what it changed before writing. The user
 can pass `--dry-run` to see changes without applying them.
 
@@ -243,15 +243,15 @@ The README will have a section structured as a prompt the AI tool can act on:
 ## Connect to your AI tool (MCP)
 
 If you are an AI assistant reading this: run the following command to
-configure tiramisu as an MCP tool for the user's installed AI coding tools.
+configure ghostlint as an MCP tool for the user's installed AI coding tools.
 
-    tiramisu mcp setup
+    ghostlint mcp setup
 
 This auto-detects Claude Code, Cursor, Windsurf, and Zed and writes the
 correct MCP server config for each. No manual editing required.
 ```
 
-When a user says "set up tiramisu" to Claude Code, Claude reads the README
+When a user says "set up ghostlint" to Claude Code, Claude reads the README
 (via the context file or `read README.md`), finds this section, and executes
 the command. The user never opens a config file.
 
@@ -262,15 +262,15 @@ the command. The user never opens a config file.
 ### Phase 1 — Core MCP server ✅ COMPLETE
 
 - [x] Add `mcp[cli]>=1.28.1` to `pyproject.toml` (via `uv add`)
-- [x] Create `tiramisu_mcp/__init__.py`
-- [x] Create `tiramisu_mcp/server.py` — `scan_repo`, `scan_files`,
+- [x] Create `ghostlint_mcp/__init__.py`
+- [x] Create `ghostlint_mcp/server.py` — `scan_repo`, `scan_files`,
       `get_health_context`, `list_findings` via FastMCP (stdio transport)
-- [x] Create `tiramisu_mcp/context_builder.py` — prose summary + structured dicts
-- [x] Add `tiramisu mcp` CLI group — default launches stdio server,
-      `tiramisu mcp setup`, `tiramisu mcp info` subcommands
-- [x] Create `tiramisu_cli/mcp_setup.py` — auto-detects Claude Code, Cursor,
+- [x] Create `ghostlint_mcp/context_builder.py` — prose summary + structured dicts
+- [x] Add `ghostlint mcp` CLI group — default launches stdio server,
+      `ghostlint mcp setup`, `ghostlint mcp info` subcommands
+- [x] Create `ghostlint_cli/mcp_setup.py` — auto-detects Claude Code, Cursor,
       Windsurf, Zed; merge-safe JSON config patching with `--dry-run`
-- [x] Add `tiramisu-mcp` script entry point + `tiramisu_mcp` package to wheel
+- [x] Add `ghostlint-mcp` script entry point + `ghostlint_mcp` package to wheel
 - [x] Added `skip_persist` flag to `ScanConfig` so scan_files / check_diff
       don't pollute the cached scan history
 - [x] Update README — "Connect to your AI tool (MCP)" section with
@@ -290,7 +290,7 @@ the command. The user never opens a config file.
 
 ## Tool Behaviour in Each Invocation Mode
 
-| User asks AI... | AI calls... | tiramisu does... |
+| User asks AI... | AI calls... | ghostlint does... |
 |---|---|---|
 | "is this codebase healthy?" | `scan_repo(path=".")` | full scan, returns score + top findings |
 | "any issues in auth.py before I edit it?" | `scan_files(files=["auth.py"])` | targeted findings for that file |
@@ -307,8 +307,8 @@ HTTP MCP servers require a running daemon and port management. stdio servers
 are launched on-demand by the AI tool, die when the conversation ends, and
 require zero firewall/port config. For a local dev tool, stdio is strictly better.
 
-**Why `tiramisu mcp` rather than a separate `tiramisu-mcp` package?**
-Single install. `pip install tiramisu` gives you the CLI, the HTML report,
+**Why `ghostlint mcp` rather than a separate `ghostlint-mcp` package?**
+Single install. `pip install ghostlint` gives you the CLI, the HTML report,
 and the MCP server in one package. No separate install step. The MCP entry
 point is just another subcommand.
 

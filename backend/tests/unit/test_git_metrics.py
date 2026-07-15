@@ -4,12 +4,12 @@ import subprocess
 from pathlib import Path
 import pytest
 
-from tiramisu_engine.git_metrics import (
+from ghostlint_engine.git_metrics import (
     compute_git_metrics,
     _large_file_ratio,
     _count_debt_markers_in_tree,
 )
-from tiramisu_engine.models.findings import GitMetrics
+from ghostlint_engine.models.findings import GitMetrics
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 """Tests for the SymbolGraph."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
 from tests.unit.conftest import make_symbol_def, make_symbol_ref
 
 

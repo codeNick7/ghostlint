@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tiramisu"
+name = "ghostlint"
 version = "0.1.0"
 description = "Repository Health Intelligence"
 requires-python = ">=3.12"
@@ -36,11 +36,11 @@ dependencies = [
 ]
 
 [project.scripts]
-tiramisu = "tiramisu_cli.main:app"
-tiramisu-mcp = "tiramisu_mcp.server:mcp.run"
+ghostlint = "ghostlint_cli.main:app"
+ghostlint-mcp = "ghostlint_mcp.server:mcp.run"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tiramisu_engine", "tiramisu_cli", "tiramisu_mcp", "app"]
+packages = ["ghostlint_engine", "ghostlint_cli", "ghostlint_mcp", "app"]
 
 [dependency-groups]
 dev = [

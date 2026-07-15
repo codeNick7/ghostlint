@@ -7,7 +7,7 @@ MIN_CONFIDENCE="${MIN_CONFIDENCE:-0.6}"
 FAIL_BELOW="${FAIL_BELOW:-70}"
 FORMAT="${FORMAT:-terminal}"
 REPO_PATH="${GITHUB_WORKSPACE:-/repo}"
-REPORT_PATH="/tmp/tiramasu-report.json"
+REPORT_PATH="/tmp/ghostlint-report.json"
 
 # ── Build CLI arguments ──────────────────────────────────────────────────────
 ARGS=("${REPO_PATH}")
@@ -31,9 +31,9 @@ echo "Format: ${FORMAT}"
 echo ""
 
 if [ "${FORMAT}" = "json" ]; then
-  tiramasu scan "${ARGS[@]}" --format json 2>&1 | tee "${REPORT_PATH}" || SCAN_EXIT=$?
+  ghostlint scan "${ARGS[@]}" --format json 2>&1 | tee "${REPORT_PATH}" || SCAN_EXIT=$?
 else
-  tiramasu scan "${ARGS[@]}" 2>&1 || SCAN_EXIT=$?
+  ghostlint scan "${ARGS[@]}" 2>&1 || SCAN_EXIT=$?
 fi
 
 echo "::endgroup::"

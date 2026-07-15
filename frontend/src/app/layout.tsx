@@ -20,7 +20,7 @@ export default function RootLayout({
               <div className="w-7 h-7 rounded-md bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center text-sm font-bold text-white">
                 T
               </div>
-              <span className="font-semibold text-gray-100 tracking-tight">tiramasu</span>
+              <span className="font-semibold text-gray-100 tracking-tight">ghostlint</span>
             </div>
             <span className="text-gray-600 text-sm hidden sm:block">|</span>
             <span className="text-gray-500 text-sm hidden sm:block">Repository Health Intelligence</span>

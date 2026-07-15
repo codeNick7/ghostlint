@@ -1,10 +1,10 @@
 """Tests for the DeadCodeDetector."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.detectors.dead_code.detector import DeadCodeDetector
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
-from tiramisu_engine.graph.context import AnalysisContext
-from tiramisu_engine.models.findings import DetectionCategory
+from ghostlint_engine.detectors.dead_code.detector import DeadCodeDetector
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.context import AnalysisContext
+from ghostlint_engine.models.findings import DetectionCategory
 from tests.unit.conftest import make_symbol_def, make_symbol_ref, make_file_info
 
 
@@ -128,8 +128,8 @@ def test_does_not_flag_django_receiver() -> None:
 
 def test_path_alias_imports_resolve_correctly() -> None:
     """@/ and ~/ path alias imports (Next.js, Vite) must clear the referenced module."""
-    from tiramisu_engine.graph.context import AnalysisContext
-    from tiramisu_engine.graph.symbol_graph import SymbolGraph
+    from ghostlint_engine.graph.context import AnalysisContext
+    from ghostlint_engine.graph.symbol_graph import SymbolGraph
     from tests.unit.conftest import make_file_info
 
     files = [
@@ -162,8 +162,8 @@ def test_path_alias_imports_resolve_correctly() -> None:
 
 def test_detects_unused_module_python() -> None:
     """A Python file never imported by any other file is flagged as an unused module."""
-    from tiramisu_engine.graph.context import AnalysisContext
-    from tiramisu_engine.graph.symbol_graph import SymbolGraph
+    from ghostlint_engine.graph.context import AnalysisContext
+    from ghostlint_engine.graph.symbol_graph import SymbolGraph
     from tests.unit.conftest import make_file_info
 
     files = [
@@ -181,8 +181,8 @@ def test_detects_unused_module_python() -> None:
 
 def test_detects_unused_module_typescript() -> None:
     """A TS component never imported by any other file is flagged."""
-    from tiramisu_engine.graph.context import AnalysisContext
-    from tiramisu_engine.graph.symbol_graph import SymbolGraph
+    from ghostlint_engine.graph.context import AnalysisContext
+    from ghostlint_engine.graph.symbol_graph import SymbolGraph
     from tests.unit.conftest import make_file_info
 
     files = [
@@ -212,7 +212,7 @@ def test_findings_sorted_by_confidence() -> None:
 def test_is_module_entry_point_main_script() -> None:
     """A Python file with a top-level `if __name__ == "__main__":` guard is a
     runnable entry point — it must not be flagged as an unused module."""
-    from tiramisu_engine.detectors.dead_code.detector import _is_module_entry_point
+    from ghostlint_engine.detectors.dead_code.detector import _is_module_entry_point
 
     runnable = (
         'def seed():\n    pass\n\n'
@@ -234,7 +234,7 @@ def test_is_module_entry_point_main_script() -> None:
 def test_is_module_entry_point_claude_hook() -> None:
     """Files under .claude/hooks/ are invoked by config (settings.local.json),
     never imported as modules — they must not be flagged as unused."""
-    from tiramisu_engine.detectors.dead_code.detector import _is_module_entry_point
+    from ghostlint_engine.detectors.dead_code.detector import _is_module_entry_point
 
     assert _is_module_entry_point(".claude/hooks/py_syntax_check.py")
     assert _is_module_entry_point(".claude/hooks/ts_prettier_check.py")
@@ -243,8 +243,8 @@ def test_is_module_entry_point_claude_hook() -> None:
 def test_unused_module_main_script_not_flagged(tmp_path) -> None:
     """A Python file with `if __name__ == "__main__":` is a runnable script and
     must not be flagged as an unused module, even though nothing imports it."""
-    from tiramisu_engine.graph.context import AnalysisContext
-    from tiramisu_engine.graph.symbol_graph import SymbolGraph
+    from ghostlint_engine.graph.context import AnalysisContext
+    from ghostlint_engine.graph.symbol_graph import SymbolGraph
     from tests.unit.conftest import make_file_info
 
     runnable_content = (
@@ -267,8 +267,8 @@ def test_unused_module_main_script_not_flagged(tmp_path) -> None:
 def test_unused_module_referenced_in_shell_script_not_flagged(tmp_path) -> None:
     """A module invoked via `python -m app.db.seed_catalog` in a deployment
     shell script must not be flagged as an unused module."""
-    from tiramisu_engine.graph.context import AnalysisContext
-    from tiramisu_engine.graph.symbol_graph import SymbolGraph
+    from ghostlint_engine.graph.context import AnalysisContext
+    from ghostlint_engine.graph.symbol_graph import SymbolGraph
     from tests.unit.conftest import make_file_info
 
     # Write a real .sh file in the tmp repo that references the module via -m.

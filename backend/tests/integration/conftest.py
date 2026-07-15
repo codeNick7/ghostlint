@@ -12,11 +12,11 @@ def committed_repo(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
     subprocess.run(["git", "init", str(repo)], capture_output=True, check=True)
     subprocess.run(
-        ["git", "-C", str(repo), "config", "user.email", "test@tiramisu.dev"],
+        ["git", "-C", str(repo), "config", "user.email", "test@ghostlint.dev"],
         capture_output=True, check=True,
     )
     subprocess.run(
-        ["git", "-C", str(repo), "config", "user.name", "Tiramisu CI"],
+        ["git", "-C", str(repo), "config", "user.name", "Ghostlint CI"],
         capture_output=True, check=True,
     )
 

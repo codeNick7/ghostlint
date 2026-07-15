@@ -4,10 +4,10 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from tiramisu_engine.indexer import FileInfo, FileIndexer
-from tiramisu_engine.ast_engine.base import SymbolDef, SymbolRef
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
-from tiramisu_engine.graph.context import AnalysisContext
+from ghostlint_engine.indexer import FileInfo, FileIndexer
+from ghostlint_engine.ast_engine.base import SymbolDef, SymbolRef
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.context import AnalysisContext
 
 
 def make_file_info(relative_path: str, content: str, language: str = "python") -> FileInfo:

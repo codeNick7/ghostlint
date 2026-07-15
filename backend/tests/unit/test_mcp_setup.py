@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import pytest
 
-from tiramisu_cli.mcp_setup import (
+from ghostlint_cli.mcp_setup import (
     _patch_config,
     _read_json,
     _write_json,
@@ -13,7 +13,7 @@ from tiramisu_cli.mcp_setup import (
 )
 
 _ENTRY = {
-    "command": "tiramisu",
+    "command": "ghostlint",
     "args": ["mcp"],
     "env": {},
 }
@@ -44,7 +44,7 @@ class TestPatchConfig:
         cfg = tmp_path / "settings.json"
         _patch_config("Claude Code", cfg, _ENTRY, dry_run=False)
         data = json.loads(cfg.read_text())
-        assert data["mcpServers"]["tiramisu"] == _ENTRY
+        assert data["mcpServers"]["ghostlint"] == _ENTRY
 
     def test_merges_without_overwriting_other_keys(self, tmp_path: Path) -> None:
         cfg = tmp_path / "settings.json"
@@ -52,7 +52,7 @@ class TestPatchConfig:
         _patch_config("Claude Code", cfg, _ENTRY, dry_run=False)
         data = json.loads(cfg.read_text())
         assert "other_tool" in data["mcpServers"]
-        assert "tiramisu" in data["mcpServers"]
+        assert "ghostlint" in data["mcpServers"]
 
     def test_dry_run_does_not_write(self, tmp_path: Path) -> None:
         cfg = tmp_path / "settings.json"
@@ -62,7 +62,7 @@ class TestPatchConfig:
 
     def test_already_configured_returns_no_changes_needed(self, tmp_path: Path) -> None:
         cfg = tmp_path / "settings.json"
-        _write_json(cfg, {"mcpServers": {"tiramisu": _ENTRY}})
+        _write_json(cfg, {"mcpServers": {"ghostlint": _ENTRY}})
         status = _patch_config("Claude Code", cfg, _ENTRY, dry_run=False)
         assert "no changes needed" in status
 
@@ -71,7 +71,7 @@ class TestPatchConfig:
         _patch_config("Zed", cfg, _ENTRY, dry_run=False)
         data = json.loads(cfg.read_text())
         assert "context_servers" in data
-        assert data["context_servers"]["tiramisu"] == _ENTRY
+        assert data["context_servers"]["ghostlint"] == _ENTRY
 
     def test_written_status_contains_path(self, tmp_path: Path) -> None:
         cfg = tmp_path / "settings.json"
@@ -84,12 +84,12 @@ class TestPrintManualSnippet:
         snippet = print_manual_snippet()
         parsed = json.loads(snippet)
         assert "mcpServers" in parsed
-        assert "tiramisu" in parsed["mcpServers"]
+        assert "ghostlint" in parsed["mcpServers"]
 
     def test_snippet_has_command(self) -> None:
         snippet = print_manual_snippet()
         parsed = json.loads(snippet)
-        entry = parsed["mcpServers"]["tiramisu"]
+        entry = parsed["mcpServers"]["ghostlint"]
         assert "command" in entry
         assert "args" in entry
 
@@ -97,7 +97,7 @@ class TestPrintManualSnippet:
 class TestRunSetup:
     def test_returns_list_of_tuples(self, tmp_path: Path, monkeypatch) -> None:
         # Monkeypatch detectors so we control what's found
-        import tiramisu_cli.mcp_setup as m
+        import ghostlint_cli.mcp_setup as m
         monkeypatch.setattr(m, "_TOOLS", [
             ("FakeTool", lambda: tmp_path / "fake_cfg.json"),
         ])
@@ -107,7 +107,7 @@ class TestRunSetup:
         assert results[0][0] == "FakeTool"
 
     def test_skips_not_detected_tools(self, monkeypatch) -> None:
-        import tiramisu_cli.mcp_setup as m
+        import ghostlint_cli.mcp_setup as m
         monkeypatch.setattr(m, "_TOOLS", [
             ("GhostTool", lambda: None),
         ])
@@ -115,7 +115,7 @@ class TestRunSetup:
         assert "not detected" in results[0][1]
 
     def test_tool_filter_limits_results(self, tmp_path: Path, monkeypatch) -> None:
-        import tiramisu_cli.mcp_setup as m
+        import ghostlint_cli.mcp_setup as m
         monkeypatch.setattr(m, "_TOOLS", [
             ("ToolA", lambda: tmp_path / "a.json"),
             ("ToolB", lambda: tmp_path / "b.json"),

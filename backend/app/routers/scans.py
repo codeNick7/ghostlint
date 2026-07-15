@@ -5,32 +5,32 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, field_validator
-from tiramisu_engine.scanner import Scanner, ScanConfig
-from tiramisu_engine.db.session import get_session
-from tiramisu_engine.db.models import ScanRecord
+from ghostlint_engine.scanner import Scanner, ScanConfig
+from ghostlint_engine.db.session import get_session
+from ghostlint_engine.db.models import ScanRecord
 from sqlalchemy import desc
 
 router = APIRouter()
 
 # Simple API key auth for local-only server.
-# Key is auto-generated on first run and stored at ~/.tiramisu/api_key.
-# Set TIRAMISU_API_KEY env var to override.
+# Key is auto-generated on first run and stored at ~/.ghostlint/api_key.
+# Set GHOSTLINT_API_KEY env var to override.
 _api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 # Configurable allowed root paths — scans are only permitted under these.
 # Defaults to the current user's home directory.
 _ALLOWED_ROOTS: list[Path] = [
     Path(p).resolve()
-    for p in os.environ.get("TIRAMISU_ALLOWED_ROOTS", str(Path.home())).split(":")
+    for p in os.environ.get("GHOSTLINT_ALLOWED_ROOTS", str(Path.home())).split(":")
     if p
 ]
 
 
 def _load_api_key() -> str:
-    env_key = os.environ.get("TIRAMISU_API_KEY")
+    env_key = os.environ.get("GHOSTLINT_API_KEY")
     if env_key:
         return env_key
-    key_path = Path.home() / ".tiramisu" / "api_key"
+    key_path = Path.home() / ".ghostlint" / "api_key"
     if key_path.exists():
         return key_path.read_text().strip()
     import secrets
@@ -98,7 +98,7 @@ class ScanResponse(BaseModel):
 
 
 def _run_scan(repo_path: str, scan_mode: str, engines: list[str] | None) -> None:
-    from tiramisu_engine.scanner import ALL_ENGINES
+    from ghostlint_engine.scanner import ALL_ENGINES
     config = ScanConfig(
         repo_path=Path(repo_path),
         scan_mode=scan_mode,

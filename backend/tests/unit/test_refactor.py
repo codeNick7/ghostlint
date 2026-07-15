@@ -1,10 +1,10 @@
 """Tests for the RefactorDetector — synonym-verb duplicate detection."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.detectors.refactor.detector import RefactorDetector
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
-from tiramisu_engine.graph.context import AnalysisContext
-from tiramisu_engine.models.findings import DetectionCategory
+from ghostlint_engine.detectors.refactor.detector import RefactorDetector
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.context import AnalysisContext
+from ghostlint_engine.models.findings import DetectionCategory
 from tests.unit.conftest import make_symbol_def, make_file_info
 
 

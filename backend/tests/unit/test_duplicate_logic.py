@@ -1,10 +1,10 @@
 """Tests for the DuplicateLogicDetector — title clarity for same-name pairs."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.detectors.duplicate_logic.detector import DuplicateLogicDetector
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
-from tiramisu_engine.graph.context import AnalysisContext
-from tiramisu_engine.models.findings import DetectionCategory
+from ghostlint_engine.detectors.duplicate_logic.detector import DuplicateLogicDetector
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.context import AnalysisContext
+from ghostlint_engine.models.findings import DetectionCategory
 from tests.unit.conftest import make_symbol_def, make_file_info
 
 
@@ -32,7 +32,7 @@ def test_same_name_cross_file_gets_clear_title():
         make_file_info("app/api/routes_planner.py", body, "python"),
     ]
     # Parse real defs so fingerprints are computed from actual ASTs.
-    from tiramisu_engine.ast_engine import PARSERS
+    from ghostlint_engine.ast_engine import PARSERS
     g = SymbolGraph()
     for f in files:
         parser = PARSERS.get(f.language)
@@ -68,7 +68,7 @@ def test_distinct_name_pair_keeps_standard_title():
         make_file_info("app/services/scoring.py", body_a, "python"),
         make_file_info("app/services/rating.py", body_b, "python"),
     ]
-    from tiramisu_engine.ast_engine import PARSERS
+    from ghostlint_engine.ast_engine import PARSERS
     g = SymbolGraph()
     for f in files:
         parser = PARSERS.get(f.language)

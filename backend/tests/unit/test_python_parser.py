@@ -1,7 +1,7 @@
 """Tests for the PythonParser."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.ast_engine.python_parser import PythonParser
+from ghostlint_engine.ast_engine.python_parser import PythonParser
 from tests.unit.conftest import make_file_info
 
 parser = PythonParser()

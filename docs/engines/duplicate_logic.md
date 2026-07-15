@@ -56,8 +56,8 @@ Some structural patterns are genuinely common boilerplate (e.g., a null-check gu
 ## Running This Engine
 
 ```bash
-tiramisu scan -e duplicate_logic
-tiramisu scan -e duplicate_logic --min-confidence 0.8
+ghostlint scan -e duplicate_logic
+ghostlint scan -e duplicate_logic --min-confidence 0.8
 ```
 
 Note: This engine is marked **slow** because it compares all pairs of parsed functions. On large repos (1000+ files) it may take 20–60 seconds.

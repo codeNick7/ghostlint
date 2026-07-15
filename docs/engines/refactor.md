@@ -36,6 +36,6 @@ INCOMPLETE REFACTOR  process_payment_v2 coexists with process_payment    src/pay
 ## Running This Engine
 
 ```bash
-tiramisu scan -e refactor
-tiramisu scan -e refactor --min-confidence 0.7
+ghostlint scan -e refactor
+ghostlint scan -e refactor --min-confidence 0.7
 ```

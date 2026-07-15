@@ -1,4 +1,4 @@
-"""Integration tests for the tiramisu CLI scan command."""
+"""Integration tests for the ghostlint CLI scan command."""
 from __future__ import annotations
 import json
 import tempfile
@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from tiramisu_cli.main import app
+from ghostlint_cli.main import app
 
 
 runner = CliRunner()

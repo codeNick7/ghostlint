@@ -53,13 +53,13 @@ A symbol may be incorrectly flagged as dead if:
 - It is exported and used by an external package that is not in this repository.
 - It is a callback registered by string name in a framework config (e.g., Django `urlpatterns`).
 
-To suppress a finding, rename the function with a framework-recognized decorator or add it to the entry-point list in a future `tiramisu.yml` config.
+To suppress a finding, rename the function with a framework-recognized decorator or add it to the entry-point list in a future `ghostlint.yml` config.
 
 ## Running This Engine
 
 ```bash
-tiramisu scan -e dead_code
-tiramisu scan -e dead_code --min-confidence 0.75
-tiramisu scan -e dead_code --changed       # only files changed vs HEAD
-tiramisu scan --quick                      # dead_code is included in --quick
+ghostlint scan -e dead_code
+ghostlint scan -e dead_code --min-confidence 0.75
+ghostlint scan -e dead_code --changed       # only files changed vs HEAD
+ghostlint scan --quick                      # dead_code is included in --quick
 ```

@@ -1,4 +1,4 @@
-"""Unit tests for tiramisu_mcp.repo_intel — the pure-function intelligence layer.
+"""Unit tests for ghostlint_mcp.repo_intel — the pure-function intelligence layer.
 
 These exercise the helpers in isolation (no scan, no git) by constructing
 Finding/ScanResult objects directly, mirroring the factory pattern used in
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from tiramisu_engine.models.findings import (
+from ghostlint_engine.models.findings import (
     DetectionCategory,
     EffortLevel,
     Evidence,
@@ -20,7 +20,7 @@ from tiramisu_engine.models.findings import (
     RiskLevel,
     ScanResult,
 )
-from tiramisu_mcp import repo_intel
+from ghostlint_mcp import repo_intel
 
 
 # ─── factories ──────────────────────────────────────────────────────────────

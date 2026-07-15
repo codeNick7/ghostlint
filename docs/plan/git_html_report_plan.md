@@ -11,26 +11,26 @@
 
 ## New Files to Create
 
-1. `tiramisu_engine/git_metrics.py`
+1. `ghostlint_engine/git_metrics.py`
    — Compute 4 new git-history metrics from a local git repo
 
-2. `tiramisu_cli/html_report.py`
+2. `ghostlint_cli/html_report.py`
    — Generate a self-contained HTML report from ScanResult + GitMetrics
 
-3. `tiramisu_cli/web_server.py`
+3. `ghostlint_cli/web_server.py`
    — Serve a single HTML file on a random port, open browser
 
 ---
 
 ## Changes to Existing Files
 
-- `tiramisu_engine/models/findings.py`
+- `ghostlint_engine/models/findings.py`
   — Add `GitMetrics` dataclass
 
-- `tiramisu_engine/scanner.py`
+- `ghostlint_engine/scanner.py`
   — Accept optional `github_url` param; run git metrics when repo is git
 
-- `tiramisu_cli/main.py`
+- `ghostlint_cli/main.py`
   — Add `--github` option (URL or owner/repo shorthand)
   — Add `--headless` flag
   — After scan: show terminal summary, generate HTML, serve + open browser
@@ -70,7 +70,7 @@
 
 ```
 ┌─────────────────────────────────────┐
-│  tiramisu  Repository Health Report  │
+│  ghostlint  Repository Health Report  │
 │  {repo_name}  ·  {scan_date}        │
 ├─────────────────────────────────────┤
 │  Overall Health Score  [gauge]      │
@@ -94,19 +94,19 @@ Self-contained HTML: Chart.js via CDN, inline CSS, no external assets.
 
 ```
 # Scan local repo, open HTML report in browser
-tiramisu scan /path/to/repo
+ghostlint scan /path/to/repo
 
 # Scan GitHub public repo, open HTML report
-tiramisu scan --github https://github.com/owner/repo
+ghostlint scan --github https://github.com/owner/repo
 
 # Shorthand
-tiramisu scan --github owner/repo
+ghostlint scan --github owner/repo
 
 # Scan without opening browser (CI mode)
-tiramisu scan --github owner/repo --headless
+ghostlint scan --github owner/repo --headless
 
 # Headless + JSON output (pure CI)
-tiramisu scan --format json --headless
+ghostlint scan --format json --headless
 ```
 
 ---
@@ -114,10 +114,10 @@ tiramisu scan --format json --headless
 ## TODO
 
 - [x] Write plan
-- [x] Create `tiramisu_engine/git_metrics.py`
+- [x] Create `ghostlint_engine/git_metrics.py`
 - [x] Add `GitMetrics` dataclass to `findings.py`
-- [x] Create `tiramisu_cli/html_report.py` (SRI hash on Chart.js CDN)
-- [x] Create `tiramisu_cli/web_server.py`
-- [x] Update `tiramisu_cli/main.py` — add `--github`, `--headless`
-- [x] Update `tiramisu_engine/scanner.py` — wire git_metrics into ScanResult
+- [x] Create `ghostlint_cli/html_report.py` (SRI hash on Chart.js CDN)
+- [x] Create `ghostlint_cli/web_server.py`
+- [x] Update `ghostlint_cli/main.py` — add `--github`, `--headless`
+- [x] Update `ghostlint_engine/scanner.py` — wire git_metrics into ScanResult
 - [x] Validate: all modules import OK, 54/54 unit tests pass

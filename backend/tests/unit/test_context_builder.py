@@ -3,11 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import pytest
 
-from tiramisu_engine.models.findings import (
+from ghostlint_engine.models.findings import (
     ScanResult, HealthScore, GitMetrics, Finding,
     DetectionCategory, RiskLevel, EffortLevel, Evidence, Recommendation,
 )
-from tiramisu_mcp.context_builder import (
+from ghostlint_mcp.context_builder import (
     build_health_context_prose,
     build_file_context_prose,
     build_full_scan_response,

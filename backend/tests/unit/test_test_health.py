@@ -1,11 +1,11 @@
 """Tests for the TestHealthDetector — orphan test call detection."""
 from __future__ import annotations
 import pytest
-from tiramisu_engine.detectors.test_health.detector import TestHealthDetector
-from tiramisu_engine.ast_engine import PARSERS
-from tiramisu_engine.graph.symbol_graph import SymbolGraph
-from tiramisu_engine.graph.context import AnalysisContext
-from tiramisu_engine.models.findings import DetectionCategory
+from ghostlint_engine.detectors.test_health.detector import TestHealthDetector
+from ghostlint_engine.ast_engine import PARSERS
+from ghostlint_engine.graph.symbol_graph import SymbolGraph
+from ghostlint_engine.graph.context import AnalysisContext
+from ghostlint_engine.models.findings import DetectionCategory
 from tests.unit.conftest import make_file_info, make_symbol_def, make_symbol_ref
 
 
