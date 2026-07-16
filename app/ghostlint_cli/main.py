@@ -718,7 +718,11 @@ def compare(
 
     console.print()
     console.print(t)
-    console.print("[dim]¹ AI slop = dead code + duplicate logic findings (lower is better)[/dim]\n")
+    console.print(
+        "[dim]¹ AI slop = dead code + duplicate logic findings (lower is better).\n"
+        "  Totals reflect all findings present at each SHA — accumulated debt that may\n"
+        "  predate the earlier commit selected. Δ shows what changed between the two.[/dim]\n"
+    )
 
 
 # ── MCP subcommand group ──────────────────────────────────────────────────────
