@@ -1,0 +1,20 @@
+
+{
+  "id": "f086792c-07f2-42cf-a361-100b0bd4902b",
+  "repo_path": "/Users/vadirajdeshpande/workspace/VectorShift-Assignment",
+  "health_score": 99.7,
+  "files_scanned": 28,
+  "symbols_found": 28,
+  "findings_count": 1,
+  "findings": [
+    {
+      "id": "d0d22f38-d3eb-46ac-bd7f-65edf385fa8f",
+      "category": "dependency_health",
+      "title": "Potentially unused dependency: `zustand`",
+      "file": "frontend/package.json",
+      "line": 1,
+      "confidence": 0.7,
+      "risk": "low"
+    }
+  ]
+}

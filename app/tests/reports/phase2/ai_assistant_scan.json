@@ -1,0 +1,47 @@
+
+{
+  "id": "17f0c53c-50d4-4f45-a717-cdea10d07813",
+  "repo_path": "/Users/vadirajdeshpande/workspace/AI-Assistant/ai-assistant",
+  "health_score": 98.3,
+  "files_scanned": 14,
+  "symbols_found": 16,
+  "findings_count": 4,
+  "findings": [
+    {
+      "id": "437313a5-f767-474c-9e4b-cb2df8431e7d",
+      "category": "duplicate_logic",
+      "title": "Duplicate logic: `formatMessage` and `formatMessage`",
+      "file": "frontend/local-ui/src/chat.js",
+      "line": 2,
+      "confidence": 0.85,
+      "risk": "low"
+    },
+    {
+      "id": "15fa56cc-a455-47a4-beb0-7e18cf94cfa6",
+      "category": "dependency_health",
+      "title": "Potentially unused dependency: `tiktoken`",
+      "file": "backend/requirements.txt",
+      "line": 1,
+      "confidence": 0.7,
+      "risk": "low"
+    },
+    {
+      "id": "4c51fabd-6ec1-4da8-91de-454b6c08176b",
+      "category": "dependency_health",
+      "title": "Potentially unused dependency: `pydantic`",
+      "file": "backend/requirements.txt",
+      "line": 1,
+      "confidence": 0.7,
+      "risk": "low"
+    },
+    {
+      "id": "ba809f4a-817a-488d-9071-df9d45668a9e",
+      "category": "dependency_health",
+      "title": "Potentially unused dependency: `scikit_learn`",
+      "file": "backend/requirements.txt",
+      "line": 1,
+      "confidence": 0.7,
+      "risk": "low"
+    }
+  ]
+}
