@@ -5,8 +5,27 @@ build-backend = "hatchling.build"
 [project]
 name = "ghostlint"
 version = "0.1.0"
-description = "Repository Health Intelligence"
+description = "Repository Health Intelligence — detect dead code, duplicate logic, architectural drift, and more."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "codeNick77", email = "biotech-preload0f@icloud.com" },
+]
 requires-python = ">=3.12"
+keywords = ["static analysis", "dead code", "code health", "repository", "linter", "refactor", "architecture"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
 dependencies = [
     # AST parsing
     "tree-sitter>=0.25.0",
@@ -40,11 +59,22 @@ ghostlint = "ghostlint_cli.main:app"
 ghostlint-mcp = "ghostlint_mcp.server:mcp.run"
 
 [tool.hatch.build.targets.wheel]
-packages = ["ghostlint_engine", "ghostlint_cli", "ghostlint_mcp", "app"]
+packages = ["ghostlint_engine", "ghostlint_cli", "ghostlint_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "ghostlint_engine/",
+    "ghostlint_cli/",
+    "ghostlint_mcp/",
+    "README.md",
+    "LICENSE",
+]
 
 [dependency-groups]
 dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.23.0",
     "httpx>=0.27.0",
+    "build>=1.2.0",
+    "twine>=5.0.0",
 ]
