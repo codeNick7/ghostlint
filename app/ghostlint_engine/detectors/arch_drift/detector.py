@@ -67,35 +67,52 @@ def _classify_file(rel_path: str) -> int | None:
     return None
 
 
-def _extract_local_imports(content: str, rel_path: str, language: str) -> list[str]:
+def _extract_local_imports(content: str, rel_path: str, language: str) -> list[tuple[str, int]]:
+    """Extract import paths from a file along with their line numbers.
+
+    Returns list of (guessed_path, line_number) tuples.
+    Only surfaces paths that resolve to a known project layer segment so that
+    the caller can do a precise prefix match rather than loose containment.
     """
-    Extract relative/local import paths from a file.
-    Returns list of relative file paths (best-effort, not resolved).
-    """
-    imports = []
+    imports: list[tuple[str, int]] = []
     base_dir = str(PurePosixPath(rel_path).parent)
+    lines = content.splitlines()
 
     if language == "python":
-        # from .services import X → relative import
-        for match in re.finditer(r"from\s+(\.[\w.]*)\s+import", content):
-            rel_import = match.group(1)
-            # Convert dotted relative import to path guess
-            # e.g., ".services" → "services" under same package
-            parts = rel_import.lstrip(".")
-            dots = len(rel_import) - len(parts)
-            # Navigate up 'dots' levels
-            base = base_dir
-            for _ in range(max(0, dots - 1)):
-                base = str(PurePosixPath(base).parent)
-            if parts:
-                guessed = str(PurePosixPath(base) / parts.replace(".", "/"))
-                imports.append(guessed)
+        for lineno, line in enumerate(lines, 1):
+            # Relative imports: from .services import X
+            m = re.match(r"\s*from\s+(\.[\w.]*)\s+import", line)
+            if m:
+                rel_import = m.group(1)
+                parts = rel_import.lstrip(".")
+                dots = len(rel_import) - len(parts)
+                base = base_dir
+                for _ in range(max(0, dots - 1)):
+                    base = str(PurePosixPath(base).parent)
+                if parts:
+                    guessed = str(PurePosixPath(base) / parts.replace(".", "/"))
+                    imports.append((guessed, lineno))
+                continue
+
+            # Absolute imports rooted at a known layer segment:
+            # from services.auth_service import X  OR  from app.services.auth import X
+            m = re.match(r"\s*from\s+([\w][\w.]*)\s+import", line)
+            if m:
+                mod = m.group(1)
+                parts = mod.split(".")
+                # Walk from the leftmost segment to find a layer keyword
+                for i, part in enumerate(parts):
+                    if part.lower() in _LAYER_MAP:
+                        # Reconstruct path from this layer segment onward
+                        guessed = "/".join(parts[i:]).replace(".", "/")
+                        imports.append((guessed, lineno))
+                        break
 
     elif language in ("javascript", "typescript"):
-        # import from './services/userService'
-        for match in re.finditer(r"from\s+['\"](\./[^'\"]+|\.\.\/[^'\"]+)['\"]", content):
-            path = match.group(1)
-            imports.append(path)
+        for lineno, line in enumerate(lines, 1):
+            m = re.search(r"""from\s+['"](\./[^'"]+|\.\./[^'"]+)['"]""", line)
+            if m:
+                imports.append((m.group(1), lineno))
 
     return imports
 
@@ -106,63 +123,73 @@ class ArchDriftDetector(BaseDetector):
     def detect(self, context: AnalysisContext) -> list[Finding]:
         findings: list[Finding] = []
 
-        # Build import graph: file → set of imported files (by relative path guess)
-        import_graph: dict[str, list[str]] = {}
+        # Build import graph: file → list of (guessed_path, line_number) pairs
+        import_graph: dict[str, list[tuple[str, int]]] = {}
 
         for file_info in context.files:
-            imports = _extract_local_imports(
+            import_graph[file_info.relative_path] = _extract_local_imports(
                 file_info.content, file_info.relative_path, file_info.language
             )
-            import_graph[file_info.relative_path] = imports
+
+        # Pre-index relative paths for O(1) prefix lookup
+        all_rel_paths = [f.relative_path.replace("\\", "/") for f in context.files]
 
         # Layer violation detection
         reported_violations: set[tuple] = set()
-        for file_path, imported_paths in import_graph.items():
+        for file_path, imported_pairs in import_graph.items():
             if _is_arch_exempt(file_path):
                 continue
             src_layer = _classify_file(file_path)
             if src_layer is None:
                 continue
-            for imp_path in imported_paths:
-                # Find matching file in context
+            for imp_path, lineno in imported_pairs:
+                norm_imp = imp_path.replace("\\", "/")
+                # Precise match: the guessed path must be a prefix of an actual file's
+                # relative path (forward direction only — never containment in reverse).
                 dst_layer = None
-                for f in context.files:
-                    # Fuzzy match: does the imported path roughly correspond to this file?
-                    if (f.relative_path.replace("\\", "/").startswith(imp_path.replace("\\", "/")) or
-                            imp_path.replace("\\", "/") in f.relative_path.replace("\\", "/")):
-                        dst_layer = _classify_file(f.relative_path)
-                        if dst_layer is not None:
+                matched_file = None
+                for rel in all_rel_paths:
+                    if rel.startswith(norm_imp):
+                        candidate_layer = _classify_file(rel)
+                        if candidate_layer is not None:
+                            dst_layer = candidate_layer
+                            matched_file = rel
                             break
 
                 if dst_layer is None:
                     continue
 
-                # Violation: lower layer (higher number) imported by higher layer is OK
-                # Violation: higher layer (lower number) imported by lower layer
-                # e.g., Data layer (3) importing from API layer (1) is BAD
                 if dst_layer < src_layer:
-                    violation_key = (file_path, imp_path, src_layer, dst_layer)
+                    violation_key = (file_path, norm_imp, src_layer, dst_layer)
                     if violation_key in reported_violations:
                         continue
                     reported_violations.add(violation_key)
+
+                    # Get the actual import line for the snippet
+                    src_content = next(
+                        (fi.content for fi in context.files if fi.relative_path == file_path), ""
+                    )
+                    src_lines = src_content.splitlines()
+                    snippet = src_lines[lineno - 1].strip() if lineno <= len(src_lines) else f"import from {imp_path}"
+
                     findings.append(Finding(
                         category=DetectionCategory.ARCHITECTURAL_DRIFT,
                         title=(
-                            f"Layer violation: {_LAYER_NAMES[src_layer]} imports from "
+                            f"Layer violation: {_LAYER_NAMES[src_layer]} → "
                             f"{_LAYER_NAMES[dst_layer]}"
                         ),
                         description=(
-                            f"`{file_path}` (classified as {_LAYER_NAMES[src_layer]}) "
-                            f"imports from `{imp_path}` (classified as {_LAYER_NAMES[dst_layer]}). "
-                            f"Lower layers should not depend on higher layers."
+                            f"`{file_path}` ({_LAYER_NAMES[src_layer]}) imports from "
+                            f"`{matched_file or imp_path}` ({_LAYER_NAMES[dst_layer]}). "
+                            f"Lower layers must not depend on higher layers."
                         ),
                         evidence=[Evidence(
                             file_path=file_path,
-                            line_start=1,
-                            line_end=1,
-                            snippet=f"import from {imp_path}",
+                            line_start=lineno,
+                            line_end=lineno,
+                            snippet=snippet,
                         )],
-                        confidence=0.7,
+                        confidence=0.75,
                         risk=RiskLevel.HIGH,
                         effort=EffortLevel.HOURS,
                         benefit="Enforcing layer boundaries improves testability and maintainability.",
@@ -172,11 +199,11 @@ class ArchDriftDetector(BaseDetector):
         try:
             import networkx as nx
             G = nx.DiGraph()
-            for src, dsts in import_graph.items():
-                for dst in dsts:
-                    # Resolve dst to an actual file path
+            for src, pairs in import_graph.items():
+                for dst, _ln in pairs:
+                    norm_dst = dst.replace("\\", "/")
                     for f in context.files:
-                        if dst in f.relative_path or f.relative_path.startswith(dst):
+                        if f.relative_path.replace("\\", "/").startswith(norm_dst):
                             G.add_edge(src, f.relative_path)
                             break
 

@@ -110,3 +110,4 @@ class ScanResult:
     symbols_found: int
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     git_metrics: GitMetrics = field(default_factory=GitMetrics)
+    commit_sha: str | None = None

@@ -13,22 +13,52 @@ LANGUAGE_MAP: dict[str, str] = {
 }
 
 EXCLUDE_DIRS: set[str] = {
-    # VCS
+    # ── VCS ──────────────────────────────────────────────────────────────────
     ".git", ".svn", ".hg",
-    # Python
-    "__pycache__", ".venv", "venv", ".tox", "eggs", ".eggs",
+
+    # ── Python virtualenvs & caches ──────────────────────────────────────────
+    # Named-venv directories (common conventions)
+    ".venv", "venv", "env", ".env",
+    "virtualenv", ".virtualenv",
+    # Safety net: catches any venv regardless of outer folder name
+    "site-packages", "dist-packages",
+    # Windows venv layout — only unambiguous names used as segment checks
+    # (Lib/Scripts/Include are too generic; site-packages is the safe net below)
+    # Tooling caches
+    "__pycache__", ".tox", ".eggs", "eggs",
     ".mypy_cache", ".pytest_cache", ".ruff_cache",
-    # JS/TS
+    ".hypothesis", "htmlcov",
+
+    # ── JS / TS package managers ──────────────────────────────────────────────
     "node_modules",
-    # Build outputs — compiled/bundled artifacts, never source
-    "dist", "build", "out", ".next", ".nuxt", ".svelte-kit",
+    ".yarn", ".pnp",
+    "bower_components",
+
+    # ── Build & bundler outputs ───────────────────────────────────────────────
+    "dist", "build", "out",
+    ".next", ".nuxt", ".svelte-kit", ".solid",
     "storybook-static", ".expo", ".turbo",
-    # Generated files
+    ".parcel-cache", ".webpack", ".rollup.cache",
+    ".output",          # Nuxt 3 output dir
+
+    # ── Generated / auto-synced ───────────────────────────────────────────────
     "generated", "__generated__", ".generated",
-    # Mobile compiled assets — bundler output (webpack chunks, Metro bundles)
-    "assets",          # android/app/src/main/assets, iOS assets bundle
-    # Misc
-    "vendor", "coverage", ".cache",
+
+    # ── Mobile bundler output ─────────────────────────────────────────────────
+    "assets",           # android/app/src/main/assets, iOS asset bundle
+
+    # ── Vendored third-party code ─────────────────────────────────────────────
+    "vendor", "vendors", "third_party", "third-party",
+
+    # ── Test artefacts & coverage ─────────────────────────────────────────────
+    "coverage", ".coverage", "htmlcov",
+    ".nyc_output",
+
+    # ── IDE / editor state ────────────────────────────────────────────────────
+    ".idea", ".vscode",
+
+    # ── Misc caches ───────────────────────────────────────────────────────────
+    ".cache", ".temp", ".tmp",
 }
 
 MAX_FILE_BYTES = 512 * 1024  # skip files larger than 512 KB

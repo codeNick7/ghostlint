@@ -74,6 +74,18 @@ def serve_and_open(
             # Prevent the page from making credentialed cross-origin requests
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("X-Frame-Options", "DENY")
+            # The HTML report uses inline styles, inline scripts, and loads
+            # Chart.js from cdn.jsdelivr.net (with SRI hash for integrity).
+            # connect-src 'none' blocks any JS fetch/XHR to external servers,
+            # which is the useful XSS exfiltration backstop even with unsafe-inline.
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'none'; "
+                "script-src 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "style-src 'unsafe-inline'; "
+                "img-src data:; "
+                "connect-src 'none';",
+            )
             self.end_headers()
             self.wfile.write(data)
 

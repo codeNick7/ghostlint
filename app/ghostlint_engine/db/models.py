@@ -22,6 +22,7 @@ class ScanRecord(Base):
     health_score_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     files_scanned: Mapped[int] = mapped_column(Integer, default=0)
     symbols_found: Mapped[int] = mapped_column(Integer, default=0)
+    commit_sha: Mapped[str | None] = mapped_column(String(40), nullable=True)
 
     findings: Mapped[list[FindingRecord]] = relationship(
         "FindingRecord", back_populates="scan", cascade="all, delete-orphan"

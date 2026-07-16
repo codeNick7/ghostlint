@@ -30,11 +30,30 @@ _engine = None
 _SessionLocal = None
 
 
+def _migrate(engine) -> None:
+    """Add columns introduced after initial schema creation (SQLite-compatible)."""
+    with engine.connect() as conn:
+        existing = {
+            row[1]
+            for row in conn.execute(
+                __import__("sqlalchemy").text("PRAGMA table_info(scans)")
+            )
+        }
+        if "commit_sha" not in existing:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE scans ADD COLUMN commit_sha VARCHAR(40)"
+                )
+            )
+            conn.commit()
+
+
 def get_engine():
     global _engine
     if _engine is None:
         _engine = _make_engine()
         Base.metadata.create_all(_engine)
+        _migrate(_engine)
     return _engine
 
 

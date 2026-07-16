@@ -1,18 +1,27 @@
 from __future__ import annotations
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Optional
 import typer
 from rich.console import Console
 from ghostlint_engine.scanner import Scanner, ScanConfig, ALL_ENGINES, FAST_ENGINES
 from ghostlint_cli.output import (
-    print_scan_result, print_findings_summary, write_json_report, scan_spinner,
+    print_scan_result, print_findings_summary, write_json_report,
 )
 
 app = typer.Typer(
     name="ghostlint",
-    help="Repository Health Intelligence — detect dead code, duplicates, drift.",
+    help=(
+        "Repository Health Intelligence — detect dead code, duplicates, drift.\n\n"
+        "Scan any local repo or a public GitHub repo directly:\n\n"
+        "  ghostlint scan                              # current directory\n\n"
+        "  ghostlint scan ~/myrepo                     # local path\n\n"
+        "  ghostlint scan --github owner/repo          # public GitHub repo\n\n"
+        "Run [bold]ghostlint scan --help[/bold] for the full option list."
+    ),
     add_completion=False,
+    rich_markup_mode="rich",
 )
 console = Console()
 
@@ -30,18 +39,52 @@ def _resolve_github_url(github: str) -> str:
     raise typer.BadParameter(f"Cannot parse GitHub reference: {github!r}")
 
 
-def _clone_repo(url: str) -> Path:
-    """Clone *url* into a temp directory and return its path."""
+def _clone_repo(url: str, depth: int | None = 200) -> Path:
+    """Clone *url* into a temp directory and return its path.
+
+    depth=200  → shallow clone (fast, default for single-commit scans)
+    depth=None → full clone (slow, used when comparing distant commits)
+    """
     import git as gitpython
     tmp = tempfile.mkdtemp(prefix="ghostlint_")
-    console.print(f"[dim]Cloning [bold]{url}[/bold] …[/dim]")
+    label = f"depth={depth}" if depth else "full history"
+    console.print(f"[dim]Cloning [bold]{url}[/bold] ({label}) …[/dim]")
     try:
-        gitpython.Repo.clone_from(url, tmp, depth=200)
+        kwargs: dict = {"depth": depth} if depth else {}
+        gitpython.Repo.clone_from(url, tmp, **kwargs)
     except Exception as exc:
         shutil.rmtree(tmp, ignore_errors=True)
         console.print(f"[red]Clone failed:[/red] {exc}")
         raise typer.Exit(code=2)
     return Path(tmp)
+
+
+def _compute_clone_depth(sha1: str, sha2: str) -> int | None:
+    """Return the minimum clone depth needed to reach both SHAs, or None for full clone.
+
+    Handles HEAD~N and HEAD^^^ notation.  Absolute SHAs and branch names return None
+    because we cannot statically determine how deep they are in history.
+    """
+    import re
+    _TILDE = re.compile(r"^HEAD~(\d+)$", re.IGNORECASE)
+    _CARET = re.compile(r"^HEAD(\^+)$", re.IGNORECASE)
+    _HEAD  = re.compile(r"^HEAD$", re.IGNORECASE)
+
+    def _n(sha: str) -> int | None:
+        if _HEAD.match(sha):
+            return 0
+        m = _TILDE.match(sha)
+        if m:
+            return int(m.group(1))
+        m = _CARET.match(sha)
+        if m:
+            return len(m.group(1))
+        return None  # absolute SHA or branch name — unknown depth
+
+    d1, d2 = _n(sha1), _n(sha2)
+    if d1 is None or d2 is None:
+        return None
+    return max(d1, d2, 1) + 20  # +20 buffer so git has room to resolve
 
 
 def _print_git_metrics_summary(result) -> None:
@@ -141,27 +184,22 @@ def scan(
 ) -> None:
     """Scan a repository for health issues and open an HTML report in the browser.
 
-    Examples:
+    Works on local repos and public GitHub repos:
 
-      ghostlint scan                                     # current directory
+      ghostlint scan                               # current directory
+      ghostlint scan ~/myrepo                      # local path
+      ghostlint scan --github owner/repo           # public GitHub repo
+      ghostlint scan --github astropy/astropy      # e.g. scan astropy
+      ghostlint scan --github https://github.com/owner/repo
 
-      ghostlint scan ~/myrepo                            # specific local path
+    Options:
 
-      ghostlint scan --github owner/repo                 # clone & scan GitHub repo
-
-      ghostlint scan --github https://github.com/o/r    # full URL
-
-      ghostlint scan --headless                          # terminal-only, no browser
-
-      ghostlint scan -e dead_code                        # single engine
-
-      ghostlint scan --quick                             # fast engines only (pre-commit)
-
-      ghostlint scan --format json                       # machine-readable for CI
-
-      ghostlint scan -x web-new -x frontend/store        # exclude directories
-
-      ghostlint scan -x "*.generated.py"                 # exclude by glob pattern
+      ghostlint scan --headless                    # no browser, terminal only
+      ghostlint scan -e dead_code                  # single engine
+      ghostlint scan --quick                       # fast engines (pre-commit)
+      ghostlint scan --format json                 # CI / machine-readable
+      ghostlint scan -x web-new -x node_modules   # exclude directories
+      ghostlint scan -x "*.generated.py"           # exclude by glob
     """
     # ── Resolve repo path ──────────────────────────────────────────────────────
     cloned_tmp: Optional[Path] = None
@@ -221,6 +259,8 @@ def _run_scan(
         else:
             console.print("[yellow]Not a git repository — ignoring --changed flag.[/yellow]")
 
+    from rich.progress import Progress, BarColumn, TextColumn, SpinnerColumn, MofNCompleteColumn
+
     config = ScanConfig(
         repo_path=repo_path,
         scan_mode="quick" if quick else "full",
@@ -231,10 +271,36 @@ def _run_scan(
     )
     scanner = Scanner(config)
 
-    with scan_spinner() as progress:
-        task = progress.add_task(f"Scanning [bold]{repo_path}[/bold] …", total=None)
+    with Progress(
+        BarColumn(bar_width=32),
+        MofNCompleteColumn(),
+        TextColumn("[dim]{task.percentage:>3.0f}%[/dim]"),
+        TextColumn(" [bold]{task.description}[/bold][dim]...[/dim]"),
+        console=console,
+        transient=True,
+    ) as progress:
+        task = progress.add_task(f"Starting", total=None)
+
+        def _on_progress(stage: str, current: int, total: int) -> None:
+            progress.update(task, description=stage, completed=current, total=total)
+
+        config.on_progress = _on_progress
         result = scanner.scan()
-        progress.update(task, completed=True)
+
+        # Show "Preparing report" while HTML is generated — keeps the bar visible
+        # during the delay between engines finishing and the browser opening.
+        if format != "json":
+            from ghostlint_cli.html_report import generate_html_report
+            from ghostlint_cli.web_server import prepare_report_dir
+            current_total = progress.tasks[task].total or 1
+            progress.update(
+                task,
+                description="Preparing report",
+                completed=current_total,
+                total=current_total,
+            )
+            html_content = generate_html_report(result)
+            serve_dir, html_path = prepare_report_dir(html_content)
 
     # ── Output ─────────────────────────────────────────────────────────────────
     if format == "json":
@@ -298,11 +364,7 @@ def _run_scan(
     # ── HTML report + browser (unless JSON mode or headless) ───────────────────
     if format != "json":
         import time
-        from ghostlint_cli.html_report import generate_html_report
-        from ghostlint_cli.web_server import prepare_report_dir, serve_and_open, cleanup_report_dir
-
-        html_content = generate_html_report(result)
-        serve_dir, html_path = prepare_report_dir(html_content)
+        from ghostlint_cli.web_server import serve_and_open, cleanup_report_dir
 
         try:
             _port, url, _thread = serve_and_open(
@@ -388,6 +450,275 @@ def engines() -> None:  # noqa: F811 (this is the actual CLI command, not a shad
     console.print()
     console.print(t)
     console.print("[dim]Run a specific engine: ghostlint scan -e <engine>[/dim]\n")
+
+
+@app.command()
+def trends(
+    path: Optional[Path] = typer.Argument(
+        None, help="Repository path (default: current directory).",
+        exists=False, file_okay=False, dir_okay=True, resolve_path=True,
+    ),
+    limit: int = typer.Option(10, "--limit", "-n", help="Number of past scans to show."),
+) -> None:
+    """Show health score trends and AI slop rate across past scans.
+
+      ghostlint trends                 # current directory, last 10 scans
+      ghostlint trends ~/myrepo -n 20  # specific repo, last 20 scans
+    """
+    from ghostlint_engine.db.session import get_session
+    from ghostlint_engine.db.models import ScanRecord
+    from sqlalchemy import asc
+    from rich.table import Table
+    from rich import box
+    import json
+    from collections import Counter
+
+    repo_path = str((path or Path(".")).resolve())
+    session = get_session()
+    try:
+        records = (
+            session.query(ScanRecord)
+            .filter(ScanRecord.repo_path == repo_path, ScanRecord.status == "completed")
+            .order_by(asc(ScanRecord.started_at))
+            .limit(limit)
+            .all()
+        )
+        if not records:
+            console.print(f"[yellow]No scan history for {repo_path}. Run [bold]ghostlint scan[/bold] first.[/yellow]")
+            return
+
+        # Materialise findings counts per category per record
+        rows = []
+        for r in records:
+            scores = json.loads(r.health_score_json) if r.health_score_json else {}
+            by_cat: Counter = Counter(f.category for f in r.findings)
+            rows.append({
+                "date": r.started_at.strftime("%Y-%m-%d %H:%M"),
+                "sha": (r.commit_sha or "")[:8],
+                "overall": r.health_score_overall or 0.0,
+                "dead": scores.get("dead_code", 0.0),
+                "dup": scores.get("duplicate_logic", 0.0),
+                "arch": scores.get("architectural_drift", 0.0),
+                "dead_n": by_cat.get("dead_code", 0),
+                "dup_n": by_cat.get("duplicate_logic", 0),
+                "files": r.files_scanned,
+            })
+    finally:
+        session.close()
+
+    def _arrow(prev: float, curr: float, higher_is_better: bool = True) -> str:
+        delta = curr - prev
+        if abs(delta) < 0.5:
+            return "[dim]─[/dim]"
+        up = delta > 0
+        good = up if higher_is_better else not up
+        symbol = "▲" if up else "▼"
+        colour = "green" if good else "red"
+        return f"[{colour}]{symbol}{abs(delta):.1f}[/{colour}]"
+
+    def _score_style(s: float) -> str:
+        if s >= 80: return f"[green]{s:.1f}[/green]"
+        if s >= 60: return f"[yellow]{s:.1f}[/yellow]"
+        return f"[red]{s:.1f}[/red]"
+
+    t = Table(
+        title=f"Trend — {repo_path}",
+        box=box.SIMPLE,
+        header_style="bold dim",
+    )
+    t.add_column("Date", width=16)
+    t.add_column("SHA", width=9)
+    t.add_column("Overall", justify="right", width=9)
+    t.add_column("Δ", width=7)
+    t.add_column("Dead code", justify="right", width=10)
+    t.add_column("Dup logic", justify="right", width=10)
+    t.add_column("Arch drift", justify="right", width=11)
+    t.add_column("AI slop ¹", justify="right", width=10)
+    t.add_column("Files", justify="right", width=6)
+
+    for i, row in enumerate(rows):
+        prev = rows[i - 1] if i > 0 else None
+        overall_arrow = _arrow(prev["overall"], row["overall"]) if prev else ""
+        # AI slop = dead code + duplicate logic finding count (size-normalised)
+        slop = row["dead_n"] + row["dup_n"]
+        prev_slop = (prev["dead_n"] + prev["dup_n"]) if prev else None
+        if prev_slop is not None:
+            slop_delta = slop - prev_slop
+            slop_colour = "red" if slop_delta > 0 else "green" if slop_delta < 0 else "dim"
+            slop_str = f"[{slop_colour}]{slop}[/{slop_colour}]"
+        else:
+            slop_str = str(slop)
+
+        t.add_row(
+            row["date"],
+            f"[dim]{row['sha']}[/dim]" if row["sha"] else "[dim]—[/dim]",
+            _score_style(row["overall"]),
+            overall_arrow,
+            _score_style(row["dead"]),
+            _score_style(row["dup"]),
+            _score_style(row["arch"]),
+            slop_str,
+            str(row["files"]),
+        )
+
+    console.print()
+    console.print(t)
+    console.print("[dim]¹ AI slop = dead code + duplicate logic finding count (lower is better)[/dim]\n")
+
+
+@app.command()
+def compare(
+    sha1: str = typer.Argument(..., help="Older commit SHA (e.g. HEAD~10, abc1234)."),
+    sha2: str = typer.Argument(..., help="Newer commit SHA (e.g. HEAD, def5678)."),
+    path: Optional[Path] = typer.Option(
+        None, "--path", "-p",
+        help="Local repository path (default: current directory). Ignored when --github is set.",
+        exists=False, file_okay=False, dir_okay=True, resolve_path=True,
+    ),
+    github: Optional[str] = typer.Option(
+        None, "--github", "-g",
+        help="GitHub repo to clone before comparing. Accepts 'owner/repo' or a full HTTPS URL.",
+    ),
+    exclude: Optional[list[str]] = typer.Option(
+        None, "--exclude", "-x",
+        help="Exclude paths or patterns (same semantics as ghostlint scan --exclude).",
+    ),
+) -> None:
+    """Compare health scores between two commits.
+
+      ghostlint compare HEAD~10 HEAD
+      ghostlint compare abc1234 def5678 --path ~/myrepo
+      ghostlint compare HEAD~50 HEAD --github django/django
+      ghostlint compare HEAD~50 HEAD --github https://github.com/django/django.git
+    """
+    import subprocess
+    import shutil
+    from ghostlint_engine.scanner import Scanner, ScanConfig, ALL_ENGINES
+    from rich.table import Table
+    from rich import box
+
+    cloned_tmp: Optional[Path] = None
+    if github:
+        clone_url = _resolve_github_url(github)
+        depth = _compute_clone_depth(sha1, sha2)
+        cloned_tmp = _clone_repo(clone_url, depth=depth)
+        repo_path = cloned_tmp
+    else:
+        repo_path = (path or Path(".")).resolve()
+        if not repo_path.exists():
+            console.print(f"[red]Path does not exist: {repo_path}[/red]")
+            raise typer.Exit(code=1)
+
+    def _scan_at_sha(sha: str) -> tuple:
+        """Check out sha into a git worktree, scan it, return (result, worktree_path)."""
+        worktree = Path(tempfile.mkdtemp(prefix=f"ghostlint_cmp_"))
+        try:
+            proc = subprocess.run(
+                ["git", "-C", str(repo_path), "worktree", "add", "--detach", str(worktree), sha],
+                capture_output=True, text=True, timeout=30,
+            )
+            if proc.returncode != 0:
+                console.print(f"[red]git worktree add failed for {sha}:[/red] {proc.stderr.strip()}")
+                raise typer.Exit(code=1)
+
+            config = ScanConfig(
+                repo_path=worktree,
+                scan_mode="full",
+                engines=[ALL_ENGINES],
+                exclude_paths=exclude or [],
+                skip_persist=True,  # don't pollute history with temp scans
+            )
+            result = Scanner(config).scan()
+            return result, worktree
+        except Exception:
+            shutil.rmtree(worktree, ignore_errors=True)
+            subprocess.run(
+                ["git", "-C", str(repo_path), "worktree", "remove", "--force", str(worktree)],
+                capture_output=True,
+            )
+            raise
+
+    def _cleanup(worktree: Path) -> None:
+        subprocess.run(
+            ["git", "-C", str(repo_path), "worktree", "remove", "--force", str(worktree)],
+            capture_output=True,
+        )
+        shutil.rmtree(worktree, ignore_errors=True)
+
+    try:
+        console.print(f"\n[dim]Checking out[/dim] [bold]{sha1}[/bold][dim] …[/dim]")
+        r1, wt1 = _scan_at_sha(sha1)
+        console.print(f"[dim]Checking out[/dim] [bold]{sha2}[/bold][dim] …[/dim]")
+        r2, wt2 = _scan_at_sha(sha2)
+        _cleanup(wt1)
+        _cleanup(wt2)
+    finally:
+        if cloned_tmp:
+            shutil.rmtree(cloned_tmp, ignore_errors=True)
+
+    def _delta(a: float, b: float, higher_is_better: bool = True) -> str:
+        d = b - a
+        if abs(d) < 0.1:
+            return "[dim]  ─[/dim]"
+        up = d > 0
+        good = up if higher_is_better else not up
+        colour = "green" if good else "red"
+        sign = "+" if d > 0 else ""
+        return f"[{colour}]{sign}{d:.1f}[/{colour}]"
+
+    def _finding_delta(a: int, b: int) -> str:
+        d = b - a
+        if d == 0: return "[dim]  ─[/dim]"
+        colour = "red" if d > 0 else "green"
+        sign = "+" if d > 0 else ""
+        return f"[{colour}]{sign}{d}[/{colour}]"
+
+    from collections import Counter
+    cat1 = Counter(f.category.value for f in r1.findings)
+    cat2 = Counter(f.category.value for f in r2.findings)
+
+    hs1, hs2 = r1.health_score, r2.health_score
+
+    t = Table(
+        title=f"Compare  {sha1[:8]}  →  {sha2[:8]}",
+        box=box.SIMPLE,
+        header_style="bold dim",
+    )
+    t.add_column("Metric", width=26)
+    t.add_column(sha1[:8], justify="right", width=10)
+    t.add_column(sha2[:8], justify="right", width=10)
+    t.add_column("Δ", width=8)
+
+    def _row(label, v1, v2, fmt=".1f", higher_is_better=True):
+        delta = _delta(v1, v2, higher_is_better)
+        t.add_row(label, f"{v1:{fmt}}", f"{v2:{fmt}}", delta)
+
+    def _cat_row(label, key):
+        n1, n2 = cat1.get(key, 0), cat2.get(key, 0)
+        t.add_row(label, str(n1), str(n2), _finding_delta(n1, n2))
+
+    _row("Overall health score",   hs1.overall,              hs2.overall)
+    _row("Dead code score",        hs1.dead_code,            hs2.dead_code)
+    _row("Duplicate logic score",  hs1.duplicate_logic,      hs2.duplicate_logic)
+    _row("Arch drift score",       hs1.architectural_drift,  hs2.architectural_drift)
+    _row("Test health score",      hs1.test_health,          hs2.test_health)
+    t.add_row("", "", "", "")  # spacer
+    _row("Files scanned",          r1.files_scanned,         r2.files_scanned,         fmt="d")
+    _row("Symbols found",          r1.symbols_found,         r2.symbols_found,          fmt="d")
+    t.add_row("", "", "", "")  # spacer
+    _cat_row("Dead code findings",      "dead_code")
+    _cat_row("Duplicate logic findings","duplicate_logic")
+    _cat_row("Arch drift findings",     "architectural_drift")
+    _cat_row("Refactor findings",       "refactor_completion")
+    _cat_row("Test health findings",    "test_health")
+    t.add_row("", "", "", "")  # spacer
+    slop1 = cat1.get("dead_code", 0) + cat1.get("duplicate_logic", 0)
+    slop2 = cat2.get("dead_code", 0) + cat2.get("duplicate_logic", 0)
+    t.add_row("AI slop total ¹", str(slop1), str(slop2), _finding_delta(slop1, slop2))
+
+    console.print()
+    console.print(t)
+    console.print("[dim]¹ AI slop = dead code + duplicate logic findings (lower is better)[/dim]\n")
 
 
 # ── MCP subcommand group ──────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ from __future__ import annotations
 import hmac
 import os
 from pathlib import Path
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Security
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Query, Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, field_validator
 from ghostlint_engine.scanner import Scanner, ScanConfig
@@ -127,7 +127,7 @@ async def start_scan(
 
 
 @router.get("/scans", response_model=list[ScanResponse])
-def list_scans(limit: int = 20, _: str = Security(_verify_api_key)):
+def list_scans(limit: int = Query(default=20, ge=1, le=500), _: str = Security(_verify_api_key)):
     session = get_session()
     records = session.query(ScanRecord).order_by(desc(ScanRecord.started_at)).limit(limit).all()
     session.close()

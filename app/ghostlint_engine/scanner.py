@@ -3,6 +3,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 from ghostlint_engine.indexer import FileIndexer
 from ghostlint_engine.ast_engine import PARSERS
@@ -31,28 +32,83 @@ class ScanConfig:
     engines: list[str] = field(default_factory=lambda: [ALL_ENGINES])
     changed_files: list[str] | None = None  # if set, filter findings to these files only
     skip_persist: bool = False              # if True, don't write to SQLite history
+    trust_repo_config: bool = True          # if False, skip ghostlint.toml in repo root
+    on_progress: Callable[[str, int, int], None] | None = None  # (stage, current, total)
+
+
+def _detect_head_sha(repo_path: Path) -> str | None:
+    """Return the short HEAD commit SHA for repo_path, or None if not a git repo."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "rev-parse", "--short=8", "HEAD"],
+            capture_output=True, text=True, timeout=5,
+        )
+        sha = result.stdout.strip()
+        return sha if sha else None
+    except Exception:
+        return None
 
 
 def _load_repo_config(repo_path: Path) -> dict:
     """Load ghostlint.toml from the repository root, if present.
 
     Returns a dict with zero or more of these keys:
-      ``exclude`` — list of path patterns to exclude from scanning
+      ``exclude`` — list of validated path patterns to exclude from scanning
 
+    Only the ``[scan]`` table is honoured — flat top-level keys are ignored so
+    a malicious config cannot silently override settings by omitting the table.
     Silent on any parse error so a broken config file never prevents a scan.
+    Only call this for repos the user owns/trusts; skip for cloned/foreign repos.
     """
-    for name in ("ghostlint.toml",):
-        cfg_path = repo_path / name
-        if not cfg_path.exists():
+    cfg_path = repo_path / "ghostlint.toml"
+    if not cfg_path.exists():
+        return {}
+    try:
+        import tomllib
+        with cfg_path.open("rb") as fh:
+            data = tomllib.load(fh)
+        scan_section = data.get("scan")
+        if not isinstance(scan_section, dict):
+            return {}
+        raw_excludes = scan_section.get("exclude", [])
+        if not isinstance(raw_excludes, list):
+            raw_excludes = []
+        return {"exclude": _validate_exclude_patterns(raw_excludes)}
+    except Exception:
+        return {}
+
+
+# Trivially-broad patterns that would exclude most or all source files.
+# A repo-shipped config that contains any of these is treated as malicious or
+# misconfigured and the pattern is silently dropped.
+_OVERBROAD_PATTERNS: frozenset[str] = frozenset({
+    "*", "**", "**/*", "/", ".", "./", "./*",
+})
+_MAX_REPO_CONFIG_PATTERNS = 50
+
+
+def _validate_exclude_patterns(patterns: list[str]) -> list[str]:
+    """Return a cleaned, safe subset of user-supplied exclude patterns.
+
+    Drops:
+      - trivially broad globs (``*``, ``**``, ``**/*``, ``/``, ``./``)
+      - patterns whose non-wildcard, non-separator content is empty
+      - entries beyond the first 50 (cap against unbounded lists)
+    Strips surrounding whitespace and trailing slashes.
+    """
+    safe: list[str] = []
+    for raw in patterns[:_MAX_REPO_CONFIG_PATTERNS]:
+        p = str(raw).strip().rstrip("/")
+        if not p:
             continue
-        try:
-            import tomllib
-            with cfg_path.open("rb") as fh:
-                data = tomllib.load(fh)
-            return data.get("scan", data)  # support [scan] table or flat top-level
-        except Exception:
-            pass
-    return {}
+        if p in _OVERBROAD_PATTERNS:
+            continue
+        # Pattern with nothing but wildcards/separators after stripping
+        if not p.replace("*", "").replace("?", "").replace("/", "").replace(".", ""):
+            continue
+        safe.append(p)
+    return safe
 
 
 class Scanner:
@@ -60,7 +116,8 @@ class Scanner:
         self.config = config
         self.indexer = FileIndexer()
 
-    def _resolve_engines(self) -> list:
+    def _resolve_engines(self) -> list[tuple]:
+        """Return list of (detector_instance, display_label) pairs for enabled engines."""
         registry = get_registry()
         requested = self.config.engines
 
@@ -77,21 +134,29 @@ class Scanner:
                 continue
             spec = registry[name]
             if spec.phase == 1:  # only run implemented engines
-                detectors.append(spec.cls())
+                detectors.append((spec.cls(), spec.label))
         return detectors
+
+    def _emit(self, stage: str, step: int, total: int) -> None:
+        if self.config.on_progress is not None:
+            self.config.on_progress(stage, step, total)
 
     def scan(self) -> ScanResult:
         started_at = datetime.now(timezone.utc)
-        detectors = self._resolve_engines()
+        detector_pairs = self._resolve_engines()
+        total_steps = 4 + len(detector_pairs)  # index + parse + build-refs + N engines + git metrics
+        step = 0
 
-        # 1. Merge CLI/API excludes with any ghostlint.toml config from the repo root
-        repo_cfg = _load_repo_config(self.config.repo_path)
-        cfg_excludes: list[str] = repo_cfg.get("exclude", [])
-        if not isinstance(cfg_excludes, list):
-            cfg_excludes = []
+        # 1. Merge CLI/API excludes with ghostlint.toml (only for trusted/local repos)
+        cfg_excludes: list[str] = []
+        if self.config.trust_repo_config:
+            repo_cfg = _load_repo_config(self.config.repo_path)
+            cfg_excludes = repo_cfg.get("exclude", [])
         merged_exclude_paths = list(self.config.exclude_paths) + cfg_excludes
 
         # 2. Index all relevant files
+        step += 1
+        self._emit("Indexing files", step, total_steps)
         files = self.indexer.index(
             self.config.repo_path,
             self.config.exclude_dirs,
@@ -101,6 +166,8 @@ class Scanner:
         # 3. Parse each file — two passes to ensure all definitions exist before
         #    references are resolved (avoids false dead-code when file A imports
         #    from file B that is parsed later alphabetically).
+        step += 1
+        self._emit("Parsing source files", step, total_steps)
         symbol_graph = SymbolGraph()
         parsed: list[tuple] = []
         for file_info in files:
@@ -113,6 +180,8 @@ class Scanner:
             except Exception:
                 continue
 
+        step += 1
+        self._emit("Building symbol graph", step, total_steps)
         for defs, _ in parsed:
             for d in defs:
                 symbol_graph.add_definition(d)
@@ -130,7 +199,9 @@ class Scanner:
         # 4. Run selected engines
         all_findings = []
         changed_set = set(self.config.changed_files) if self.config.changed_files else None
-        for detector in detectors:
+        for detector, label in detector_pairs:
+            step += 1
+            self._emit(f"Running: {label}", step, total_steps)
             try:
                 findings = detector.detect(context)
                 # Filter to changed files only (symbol graph still built from ALL files
@@ -142,12 +213,19 @@ class Scanner:
                 pass
 
         # 5. Score and recommend
-        health_score = compute_health_score(all_findings, symbol_graph.total_definitions())
+        health_score = compute_health_score(
+            all_findings,
+            total_symbols=symbol_graph.total_definitions(),
+            total_files=len(files),
+        )
         recommendations = generate_recommendations(all_findings)
 
-        # 6. Git metrics (best-effort — never fails the scan)
+        # 6. Git metrics + HEAD SHA (best-effort — never fails the scan)
+        step += 1
+        self._emit("Analysing git history", step, total_steps)
         from ghostlint_engine.git_metrics import compute_git_metrics
         git_metrics = compute_git_metrics(self.config.repo_path)
+        commit_sha = _detect_head_sha(self.config.repo_path)
 
         completed_at = datetime.now(timezone.utc)
 
@@ -162,6 +240,7 @@ class Scanner:
             files_scanned=len(files),
             symbols_found=symbol_graph.total_definitions(),
             git_metrics=git_metrics,
+            commit_sha=commit_sha,
         )
 
         # 7. Persist to SQLite (skipped for partial / ephemeral scans)
@@ -193,6 +272,7 @@ class Scanner:
                 }),
                 files_scanned=result.files_scanned,
                 symbols_found=result.symbols_found,
+                commit_sha=result.commit_sha,
             )
             for f in result.findings:
                 scan_rec.findings.append(FindingRecord(

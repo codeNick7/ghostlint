@@ -148,9 +148,9 @@ class TestBuildFullScanResponse:
     def test_has_all_top_level_keys(self) -> None:
         result = _make_result()
         resp = build_full_scan_response(result)
-        for key in ("health_score", "files_scanned", "symbols_found",
-                    "git_metrics", "findings_summary", "top_findings",
-                    "recommendations", "health_context"):
+        for key in ("health_score", "health_label", "files_scanned", "symbols_found",
+                    "git_metrics", "findings_summary", "high_and_medium_findings",
+                    "low_findings_summary", "report", "health_context"):
             assert key in resp
 
     def test_health_context_is_string(self) -> None:

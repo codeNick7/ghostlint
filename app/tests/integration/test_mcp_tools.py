@@ -7,6 +7,8 @@ from __future__ import annotations
 from pathlib import Path
 import pytest
 
+import asyncio
+
 from ghostlint_mcp.server import (
     check_diff,
     estimate_cleanup_effort,
@@ -30,29 +32,40 @@ from ghostlint_mcp.server import (
 )
 
 
+class _MockCtx:
+    """Minimal stand-in for FastMCP Context used in direct-call tests."""
+    async def report_progress(self, *args, **kwargs) -> None:
+        pass
+
+
+def _scan_repo_sync(**kwargs) -> dict:
+    """Run the async scan_repo with a mock ctx, blocking until complete."""
+    return asyncio.run(scan_repo(_MockCtx(), **kwargs))
+
+
 class TestScanRepo:
     def test_returns_dict(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         assert isinstance(result, dict)
 
     def test_has_required_keys(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         for key in ("health_score", "files_scanned", "git_metrics", "health_context"):
             assert key in result, f"Missing key: {key}"
 
     def test_health_score_in_range(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         score = result["health_score"]
         assert isinstance(score, (int, float))
         assert 0.0 <= score <= 100.0
 
     def test_git_metrics_available_for_git_repo(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         gm = result["git_metrics"]
         assert gm["available"] is True
 
     def test_git_metrics_have_expected_fields(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         gm = result["git_metrics"]
         for field in ("stability_index", "maintenance_velocity",
                       "refactor_completion_rate", "friction_index",
@@ -60,22 +73,22 @@ class TestScanRepo:
             assert field in gm
 
     def test_health_context_is_nonempty_string(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         ctx = result["health_context"]
         assert isinstance(ctx, str)
         assert len(ctx) > 20
 
     def test_top_findings_is_list(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo))
+        result = _scan_repo_sync(path=str(committed_repo))
         assert isinstance(result.get("top_findings", []), list)
 
     def test_engine_filter_limits_scope(self, committed_repo: Path) -> None:
-        result = scan_repo(path=str(committed_repo), engines=["dead_code"])
+        result = _scan_repo_sync(path=str(committed_repo), engines=["dead_code"])
         assert isinstance(result, dict)
         assert "health_score" in result
 
     def test_invalid_path_returns_error_dict(self) -> None:
-        result = scan_repo(path="/no/such/repo")
+        result = _scan_repo_sync(path="/no/such/repo")
         assert isinstance(result, dict)
         assert "error" in result
 
@@ -112,7 +125,7 @@ class TestScanFiles:
         self, committed_repo: Path
     ) -> None:
         # Full scan first — caches result in SQLite
-        full = scan_repo(path=str(committed_repo))
+        full = _scan_repo_sync(path=str(committed_repo))
         initial_score = full["health_score"]
 
         # Partial scan — must NOT overwrite the full scan record
@@ -128,18 +141,18 @@ class TestScanFiles:
 
 class TestGetHealthContext:
     def test_returns_dict(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))  # ensure cache exists
+        _scan_repo_sync(path=str(committed_repo))  # ensure cache exists
         result = get_health_context(repo_path=str(committed_repo))
         assert isinstance(result, dict)
 
     def test_cached_true_after_scan(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = get_health_context(repo_path=str(committed_repo))
         if "error" not in result:
             assert result.get("cached") is True
 
     def test_has_health_score_when_cached(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = get_health_context(repo_path=str(committed_repo))
         if result.get("cached"):
             assert "health_score" in result
@@ -157,41 +170,41 @@ class TestGetHealthContext:
 
 class TestListFindings:
     def test_returns_dict_with_findings_list(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo))
         assert isinstance(result, dict)
         assert "findings" in result
         assert isinstance(result["findings"], list)
 
     def test_has_total_matching_key(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo))
         assert "total_matching" in result
 
     def test_filter_by_category(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo), category="dead_code")
         for item in result["findings"]:
             assert item["category"] == "dead_code"
 
     def test_filter_by_risk(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo), risk="high")
         for item in result["findings"]:
             assert item["risk"] == "high"
 
     def test_limit_respected(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo), limit=2)
         assert len(result["findings"]) <= 2
 
     def test_filters_applied_key_present(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo), category="dead_code")
         assert "filters_applied" in result
 
     def test_filter_by_file_pattern(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = list_findings(repo_path=str(committed_repo), file_pattern="auth")
         assert isinstance(result["findings"], list)
         for item in result["findings"]:
@@ -508,18 +521,18 @@ class TestRepositoryMetrics:
 
 class TestRepositoryTimeline:
     def test_returns_dict(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))  # ensure at least one scan exists
+        _scan_repo_sync(path=str(committed_repo))  # ensure at least one scan exists
         result = repository_timeline(repo_path=str(committed_repo))
         assert isinstance(result, dict)
 
     def test_available_after_scan(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = repository_timeline(repo_path=str(committed_repo))
         assert result["available"] is True
         assert result["scan_count"] >= 1
 
     def test_has_trend_key(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))
         result = repository_timeline(repo_path=str(committed_repo))
         assert result["trend"] in ("improving", "declining", "stable")
 
@@ -529,8 +542,8 @@ class TestRepositoryTimeline:
         assert result["available"] is False
 
     def test_limit_parameter(self, committed_repo: Path) -> None:
-        scan_repo(path=str(committed_repo))
-        scan_repo(path=str(committed_repo))  # ensure at least 2 records
+        _scan_repo_sync(path=str(committed_repo))
+        _scan_repo_sync(path=str(committed_repo))  # ensure at least 2 records
         result = repository_timeline(repo_path=str(committed_repo), limit=1)
         assert result["scan_count"] <= 1
 
