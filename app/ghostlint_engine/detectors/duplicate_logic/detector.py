@@ -152,6 +152,17 @@ def _js_fingerprint(content: str, sym: SymbolDef) -> str | None:
         return None
 
 
+def _is_test_path(path: str) -> bool:
+    """Return True if the file path belongs to a test suite."""
+    norm = path.replace("\\", "/")
+    return (
+        ".test." in norm or ".spec." in norm
+        or norm.startswith("tests/") or "/tests/" in norm
+        or norm.startswith("test_") or "/test_" in norm
+        or "/e2e/" in norm or "/ask-ai-tests/" in norm
+    )
+
+
 def _is_abstract_or_override(sym: SymbolDef) -> bool:
     """Heuristic: is this symbol an abstract method or a subclass override?
 
@@ -421,6 +432,17 @@ class DuplicateLogicDetector(BaseDetector):
                     if n > 2
                     else f"Duplicate logic: {display_name} duplicated across files"
                 )
+
+                # Cross-context matches (some instances in test files, some in
+                # production code) are lower signal: test stubs intentionally
+                # mimic production shapes without being copy-paste. Drop confidence
+                # below the default 0.6 threshold so they're hidden unless the
+                # user explicitly lowers --min-confidence.
+                test_paths = {s.file_path for s in sym_list if _is_test_path(s.file_path)}
+                prod_paths = {s.file_path for s in sym_list if not _is_test_path(s.file_path)}
+                cross_context = bool(test_paths and prod_paths)
+                confidence = 0.55 if cross_context else 0.85
+
                 description = (
                     f"{display_name} {'have' if len(actual_names) > 1 else 'has'} "
                     f"an identical structural AST fingerprint in {n} files. "
@@ -441,7 +463,7 @@ class DuplicateLogicDetector(BaseDetector):
                         )
                         for s in evidence_syms
                     ],
-                    confidence=0.85,
+                    confidence=confidence,
                     risk=RiskLevel.LOW,
                     effort=EffortLevel.HOURS,
                     benefit="Reduces maintenance burden and chance of diverging bug fixes.",

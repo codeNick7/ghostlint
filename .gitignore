@@ -19,5 +19,6 @@ htmlcov/
 .coverage
 # Ghostlint temp files
 ghostlint_report_*
+ghostlint.zip
 backend/report*.txt
 backend/report_analysis.md
