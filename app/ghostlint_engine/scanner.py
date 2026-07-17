@@ -144,7 +144,7 @@ class Scanner:
     def scan(self) -> ScanResult:
         started_at = datetime.now(timezone.utc)
         detector_pairs = self._resolve_engines()
-        total_steps = 4 + len(detector_pairs)  # index + parse + build-refs + N engines + git metrics
+        total_steps = 5 + len(detector_pairs)  # index + parse + build-refs + N engines + git metrics + finalise
         step = 0
 
         # 1. Merge CLI/API excludes with ghostlint.toml (only for trusted/local repos)
@@ -226,6 +226,9 @@ class Scanner:
         from ghostlint_engine.git_metrics import compute_git_metrics
         git_metrics = compute_git_metrics(self.config.repo_path)
         commit_sha = _detect_head_sha(self.config.repo_path)
+
+        step += 1
+        self._emit("Finalising", step, total_steps)
 
         completed_at = datetime.now(timezone.utc)
 
