@@ -10,9 +10,9 @@ ghostlint scan --github pallets/flask
 ```
 
 ```
- ╭─ ghostlint ──────────────────────────────────────────────────────────────────╮
+ ╭─ ghostlint ─────────────────────────────────────────────────────────────────╮
  │  94.0 / 100  Repository Health Score                                        │
- │  342 files · 1847 symbols · 12 findings · 3.2s                             │
+ │  342 files · 1847 symbols · 12 findings · 3.2s                              │
  ╰─────────────────────────────────────────────────────────────────────────────╯
 
   DEAD CODE          _internal_helper     src/utils/auth.py:214       conf 82%
